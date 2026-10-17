@@ -1,0 +1,600 @@
+<span id="top"></span>
+
+<!-- ================================================================
+     01 — HERO
+     ================================================================ -->
+<section class="hero grain" id="hero">
+  <div class="hero__media" aria-hidden="true"></div>
+  <div class="hero__scrim" aria-hidden="true"></div>
+  <div class="rule-grid" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+
+    <div class="hero__kicker" data-reveal="fade">
+      <p>Cabinet d'avocats &amp; Conseils</p>
+      <p class="accent">Tunis · Tunisie</p>
+    </div>
+
+    <div class="hero__cols">
+
+      <div class="hero__lead">
+        <p class="hero__chip" data-reveal="fade">
+          <b>Tunis</b>
+          <span>45, rue Ali Darghouth</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </p>
+
+        <h1 class="hero__title wipe" data-reveal style="--reveal-delay:60ms">
+          <span><span>Une expertise juridique au service des <em>entreprises</em>, des institutions et des dirigeants.</span></span>
+        </h1>
+
+        <p class="hero__lede" data-reveal style="--reveal-delay:160ms">
+          Entreprises, établissements financiers et particuliers&nbsp;: croissance,
+          financement, restructuration, contentieux et défense.
+        </p>
+
+        <div class="btn-row" data-reveal style="--reveal-delay:240ms">
+          <a class="btn" href="contact.html">
+            Prendre contact
+            <svg width="16" height="16" class="btn__arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/>
+            </svg>
+          </a>
+          <a class="btn btn--ghost" href="expertises.html">
+            Découvrir nos expertises
+            <svg width="16" height="16" class="btn__arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <figure class="hero__figure" data-reveal="right" style="--reveal-delay:160ms">
+        <img src="assets/img/editorial-hero.jpg"
+             alt="Façade d'un immeuble de bureaux en pierre claire, Tunis — ombre portée et lumière d'après-midi."
+             width="1376" height="768">
+        <figcaption>Centre-ville de Tunis</figcaption>
+      </figure>
+
+    </div>
+
+    <div>
+      <dl class="hero__rail" data-reveal="fade" style="--reveal-delay:120ms">
+        <div class="hero__stat">
+          <dt>40+</dt>
+          <dd>Ans d'expérience</dd>
+        </div>
+        <div class="hero__stat">
+          <dt>4</dt>
+          <dd>Avocats du barreau de Tunis</dd>
+        </div>
+        <div class="hero__stat">
+          <dt>Tunis</dt>
+          <dd>45, rue Ali Darghouth</dd>
+        </div>
+      </dl>
+      <div class="hero__scroll" aria-hidden="true">
+        <span>Faire défiler</span>
+        <i></i>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================================================================
+     02 — POSITIONING
+     ================================================================ -->
+<section class="section section--ivory positioning" id="cabinet">
+  <div class="container">
+    <div class="positioning__grid">
+
+      <div class="figure" data-reveal="left">
+        <p class="figure__value" aria-label="Plus de 40 ans">40<sup>+</sup></p>
+        <p class="figure__label">Années d'expérience</p>
+      </div>
+
+      <div class="positioning__body">
+        <p class="eyebrow" data-reveal>01 — Le Cabinet</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Une expérience construite sur plus de quatre décennies.</span></span>
+        </h2>
+        <span class="draw-x" data-reveal style="margin:28px 0 28px"></span>
+
+        <p class="body-text" data-reveal style="--reveal-delay:80ms">
+          Quatre avocats du Barreau de Tunis, quatre spécialisations.
+        </p>
+
+        <div class="signature" data-reveal="fade" style="--reveal-delay:200ms">
+          <span class="signature__motto">Servir — Conseiller — Défendre</span>
+          <span class="signature__meta">Barreau de Tunis</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     03 — EXPERTISE PILLARS
+     ================================================================ -->
+<section class="section section--paper" id="expertises">
+  <div class="container">
+
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>02</p>
+        <p class="eyebrow" data-reveal>Expertises</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Quatre pôles de compétences, une seule exigence.</span></span>
+        </h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Conseil et contentieux, sur le même dossier.
+      </p>
+    </div>
+
+    <div class="expertise-grid stagger stagger-4">
+
+      <article class="pillar" data-reveal="scale">
+        <span class="pillar__num">01</span>
+        <h3 class="pillar__title">Droit des affaires</h3>
+        <p class="pillar__desc">
+          Constituer, financer, céder, restructurer.
+        </p>
+        <ul class="pillar__items">
+          <li><a class="pillar__link" href="domaine-droit-des-societes.html">Droit des sociétés</a></li>
+          <li><a class="pillar__link" href="domaine-operations-de-cession-d-entreprise.html">Opérations de cession d'entreprise</a></li>
+          <li><a class="pillar__link" href="domaine-restructuration-et-levee-de-fonds.html">Restructuration &amp; levée de fonds</a></li>
+          <li><a class="pillar__link" href="domaine-arbitrage-et-contentieux-des-societes-commerciales.html">Arbitrage et contentieux des sociétés commerciales</a></li>
+        </ul>
+        <span class="pillar__cta">Découvrir</span>
+        <span class="pillar__go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg></span>
+      </article>
+
+      <article class="pillar" data-reveal="scale">
+        <span class="pillar__num">02</span>
+        <h3 class="pillar__title">Banque, finance &amp; assurances</h3>
+        <p class="pillar__desc">
+          Sécuriser le financement, couvrir le risque.
+        </p>
+        <ul class="pillar__items">
+          <li>Droit bancaire et financier</li>
+          <li>Financement, conformité &amp; bancassurance</li>
+          <li>Droit fiscal</li>
+          <li>Droit des assurances</li>
+        </ul>
+        <span class="pillar__cta">Découvrir</span>
+        <span class="pillar__go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg></span>
+      </article>
+
+      <article class="pillar" data-reveal="scale">
+        <span class="pillar__num">03</span>
+        <h3 class="pillar__title">Immobilier, social &amp; maritime</h3>
+        <p class="pillar__desc">
+          Le patrimoine, le travail, le maritime.
+        </p>
+        <ul class="pillar__items">
+          <li>Transactions &amp; ventes aux enchères publiques</li>
+          <li>Fiscalité immobilière</li>
+          <li>Droit social et prud'hommes</li>
+          <li>Droit maritime</li>
+        </ul>
+        <span class="pillar__cta">Découvrir</span>
+        <span class="pillar__go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg></span>
+      </article>
+
+      <article class="pillar" data-reveal="scale">
+        <span class="pillar__num">04</span>
+        <h3 class="pillar__title">Contentieux, pénal &amp; libertés</h3>
+        <p class="pillar__desc">
+          Défendre les intérêts, protéger les personnes.
+        </p>
+        <ul class="pillar__items">
+          <li>Contentieux commercial et civil</li>
+          <li>Droit pénal général et spécial</li>
+          <li>Affaires politiques et d'opinion</li>
+          <li>Droits de l'Homme</li>
+        </ul>
+        <span class="pillar__cta">Découvrir</span>
+        <span class="pillar__go"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg></span>
+      </article>
+
+    </div>
+
+    <p class="expertise-note" data-reveal="fade">
+      <strong>Conseil &amp; contentieux.</strong>
+      <span>En assistance permanente comme en représentation.</span>
+    </p>
+
+    <!-- Signature block — Droit du sport -->
+    <div class="sport" id="sport">
+      <div class="sport__bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="sport__inner">
+          <div>
+            <span class="sport__flag" data-reveal="fade"><i></i> Expertise signature</span>
+            <h3 class="sport__title wipe" data-reveal>
+              <span><span>Droit du sport</span></span>
+            </h3>
+            <p class="sport__desc" data-reveal style="--reveal-delay:100ms">
+              Une spécialisation rare en Tunisie : le cabinet assiste et
+              représente ses clients dans leurs litiges sportifs.
+            </p>
+            <a class="link-line" href="contact.html" data-reveal style="--reveal-delay:160ms">
+              Échanger sur votre situation
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+            </a>
+          </div>
+          <ul class="sport__list" data-reveal="right" style="--reveal-delay:140ms">
+            <li><span>01</span>Règlement des litiges sportifs</li>
+            <li><span>02</span>Responsabilité et manquements graves</li>
+            <li><span>03</span>Assistance et représentation</li>
+            <li><span>04</span>Conseil aux acteurs du sport</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================================================================
+     04 — LE CABINET (ÉDITORIAL)
+     ================================================================ -->
+<section class="section section--ink cabinet grain" id="le-cabinet">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+
+    <div class="cabinet__grid">
+      <figure class="cabinet__figure" data-reveal="left">
+        <img src="assets/img/editorial-library.jpg" alt="Rayonnage de ouvrages juridiques reliés cuir, lumière rasante." width="1408" height="768" loading="lazy">
+        <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
+      </figure>
+
+      <div class="cabinet__body">
+        <p class="eyebrow" data-reveal>03 — Identité</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Une histoire. Une exigence. Une vision.</span></span>
+        </h2>
+        <span class="draw-x" data-reveal style="margin:28px 0 28px"></span>
+
+        <p class="body-text" data-reveal style="--reveal-delay:80ms">
+          Comprendre la problématique, proposer la stratégie.
+        </p>
+
+        <blockquote class="cabinet__quote" data-reveal="fade" style="--reveal-delay:200ms">
+          « Créer, développer, financer, céder, restructurer : nos avocats
+          vous accompagnent. Difficultés avec vos prestataires : ils vous
+          assistent et vous représentent. »
+        </blockquote>
+      </div>
+    </div>
+
+    <div class="commitments stagger stagger-3">
+      <div class="commitment" data-reveal="fade">
+        <span class="commitment__num">01</span>
+        <h3 class="commitment__title">Écoute</h3>
+        <p class="commitment__text">
+          Une lecture attentive avant toute analyse.
+        </p>
+      </div>
+      <div class="commitment" data-reveal="fade">
+        <span class="commitment__num">02</span>
+        <h3 class="commitment__title">Rigueur</h3>
+        <p class="commitment__text">
+          Un traitement exigeant, un accompagnement continu.
+        </p>
+      </div>
+      <div class="commitment" data-reveal="fade">
+        <span class="commitment__num">03</span>
+        <h3 class="commitment__title">Réactivité</h3>
+        <p class="commitment__text">
+          L'efficacité au service de la défense.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================================================================
+     05 — ÉQUIPE
+     ================================================================ -->
+<section class="section section--paper" id="equipe">
+  <div class="container">
+
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>04</p>
+        <p class="eyebrow" data-reveal>L'équipe</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Quatre avocats, quatre expertises.</span></span>
+        </h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Un interlocuteur nommé pour chaque dossier.
+      </p>    </div>
+
+    <div class="team-grid stagger stagger-4">
+
+      <article class="member" data-reveal="fade">
+        <div class="member__photo">
+          <span class="member__num">01</span>
+          <img src="assets/img/team/slim-bouderbala.jpg" alt="Portrait de Maître Slim Bouderbala, avocat associé et gérant du cabinet." width="500" height="500" loading="lazy">
+        </div>
+        <h3 class="member__name"><span>Maître</span>Slim BOUDERBALA</h3>
+        <p class="member__role">Avocat Associé · Gérant</p>
+        <ul class="member__tags">
+          <li>Droit des affaires</li>
+          <li>Droit du sport</li>
+          <li>Immobilier</li>
+          <li>Restructuration</li>
+        </ul>
+        <a class="link-line member__cta" href="avocat-slim-bouderbala.html">
+          Voir le profil
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      <article class="member" data-reveal="fade">
+        <div class="member__photo">
+          <span class="member__num">02</span>
+          <img src="assets/img/team/faten-guemri.jpg" alt="Portrait de Maître Faten Guemri, avocate associée du cabinet." width="500" height="500" loading="lazy">
+        </div>
+        <h3 class="member__name"><span>Maître</span>Faten GUEMRI</h3>
+        <p class="member__role">Avocate Associée · Co-gérante</p>
+        <ul class="member__tags">
+          <li>Cession d'entreprise</li>
+          <li>Arbitrage</li>
+          <li>Sociétés commerciales</li>
+          <li>Contentieux</li>
+        </ul>
+        <a class="link-line member__cta" href="avocate-faten-guemri.html">
+          Voir le profil
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      <article class="member" data-reveal="fade">
+        <div class="member__photo">
+          <span class="member__num">03</span>
+          <img src="assets/img/team/sahbi-bouderbala.jpg" alt="Portrait de Maître Med Sahbi Bouderbala, avocat senior associé." width="500" height="500" loading="lazy">
+        </div>
+        <h3 class="member__name"><span>Maître</span>Med Sahbi BOUDERBALA</h3>
+        <p class="member__role">Associé Senior</p>
+        <ul class="member__tags">
+          <li>Droit maritime</li>
+          <li>Assurances</li>
+          <li>Droit bancaire</li>
+          <li>Droits de l'Homme</li>
+        </ul>
+        <a class="link-line member__cta" href="avocat-sahbi-bouderbala.html">
+          Voir le profil
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      <article class="member" data-reveal="fade">
+        <div class="member__photo">
+          <span class="member__num">04</span>
+          <img src="assets/img/team/taoufik-bouderbala.jpg" alt="Portrait de Maître Taoufik Bouderbala, avocat senior associé." width="500" height="500" loading="lazy">
+        </div>
+        <h3 class="member__name"><span>Maître</span>Taoufik BOUDERBALA</h3>
+        <p class="member__role">Associé Senior</p>
+        <ul class="member__tags">
+          <li>Droit pénal</li>
+          <li>Affaires d'opinion</li>
+          <li>Droit bancaire</li>
+          <li>Droit maritime</li>
+        </ul>
+        <a class="link-line member__cta" href="avocat-taoufik-bouderbala.html">
+          Voir le profil
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+    </div>
+
+    <div class="team-footnote" data-reveal="fade">
+      <p>
+        Chacun dans sa spécialité : un interlocuteur nommé.
+      </p>
+      <a class="link-line" href="contact.html">
+        Rencontrons-nous
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================================================================
+     06 — ILS NOUS FONT CONFIANCE
+     ================================================================ -->
+<section class="section section--ink refs grain" id="references">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+
+    <div class="refs__head">
+      <div>
+        <p class="section-index" data-reveal>05</p>
+        <p class="eyebrow" data-reveal>Références</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Ils nous font confiance</span></span>
+        </h2>
+      </div>
+      <p data-reveal style="--reveal-delay:100ms">
+        Établissements financiers, groupes industriels et hôteliers,
+        organisations patronales, institution humanitaire.
+      </p>
+    </div>
+
+    <div class="logo-grid" data-reveal="fade">
+      <div class="logo-cell"><img src="assets/img/clients/bft-stb.png" alt="BFT — STB Bank" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/qnb.png" alt="QNB Bank" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/tsb.png" alt="Tunisian Saudi Bank" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/conect.png" alt="CONECT — Confédération des Entreprises Citoyennes de Tunisie" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/seabel.png" alt="Seabel Hotels — Tunisie Groupe" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/palm-beach.png" alt="Palm Beach Hotels — Tunisie" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/villa-didon.png" alt="Villa Didon Carthage" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/finzi.png" alt="Finzi — Usines Graphiques" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/systra-studi.png" alt="Groupe STUDI" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/gamma-plast.png" alt="Gamma Plast" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/mcm.png" alt="MCM — Marketing Communication Media" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/croissant-rouge.png" alt="Le Croissant-Rouge Tunisien" loading="lazy"></div>
+    </div>
+
+    <div class="refs__foot">
+      <p class="refs__caption" data-reveal="fade">Références communiquées par le cabinet</p>
+      <a class="link-line" href="contact.html" data-reveal="fade">
+        Rejoindre nos clients
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================================================================
+     07 — PUBLICATIONS
+     ================================================================ -->
+<section class="section section--ivory" id="publications">
+  <div class="container">
+
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>06</p>
+        <p class="eyebrow" data-reveal>Publications</p>
+        <h2 class="d2 wipe" data-reveal>
+          <span><span>Regards &amp; analyses</span></span>
+        </h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        L'avantage d'anticipation sur vos opérations.
+      </p>
+    </div>
+
+    <div class="pubs-grid stagger stagger-3">
+
+      <article class="pub" data-reveal="fade">
+        <p class="pub__meta"><span>Droit</span><i></i><span>24 mai 2018</span></p>
+        <h3 class="pub__title">La cession du fonds de commerce exploité en Franchise</h3>
+        <p class="pub__kicker">
+          Fonds de commerce, franchise et transmission d'entreprise.
+        </p>
+        <a class="pub__cta" href="https://www.jurisaffaires.tn/droit/cession-du-fonds-de-commerce-exploite-en-franchise/">
+          Lire l'analyse
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      <article class="pub" data-reveal="fade">
+        <p class="pub__meta"><span>Droit</span><i></i><span>24 janvier 2018</span></p>
+        <h3 class="pub__title">Plaidoyer pour la consécration du droit aux loisirs dans les dispositions de la constitution de la deuxième République</h3>
+        <p class="pub__kicker">
+          Droits fondamentaux et protection constitutionnelle des libertés.
+        </p>
+        <a class="pub__cta" href="https://www.jurisaffaires.tn/droit/plaidoyer-consecration-droit-aux-loisirs-dans-dispositions-constitution-deuxieme-republique/">
+          Lire l'analyse
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      <article class="pub pub--cta" data-reveal="fade">
+        <div>
+          <p class="pub__meta"><span>La Tribune</span></p>
+          <h3 class="pub__title">Analyses &amp; avis d'experts</h3>
+          <p class="pub__kicker">
+            Des avis d'experts sur les sujets qui engagent vos opérations.
+          </p>
+        </div>
+        <a class="pub__cta" href="https://www.jurisaffaires.tn/la-tribune/">
+          Toutes les publications
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>
+        </a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================
+     08 — CONTACT
+     ================================================================ -->
+<section class="section section--ink contact grain" id="contact">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="contact__inner">
+
+      <div>
+        <p class="eyebrow" data-reveal>07 — Contact</p>
+        <h2 class="contact__title wipe" data-reveal>
+          <span><span>Parlons de votre problématique juridique.</span></span>
+        </h2>
+        <p class="contact__text" data-reveal style="--reveal-delay:100ms">
+          À taille humaine, à votre écoute.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:170ms">
+          <a class="btn" href="mailto:avocats-conseils@jurisaffaires.net">
+            Prendre contact
+            <svg width="16" height="16" class="btn__arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/>
+            </svg>
+          </a>
+          <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">Appeler le cabinet</a>
+        </div>
+      </div>
+
+      <div class="contact-card" data-reveal="right" style="--reveal-delay:120ms">
+        <p class="contact-card__title">Nos bureaux · Tunis</p>
+
+        <div class="contact-row">
+          <svg width="24" height="24" class="contact-row__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <div>
+            <span class="contact-row__label">Adresse</span>
+            <span class="contact-row__value">45, rue Ali Darghouth<br>1001 Tunis — Tunisie</span>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <svg width="24" height="24" class="contact-row__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+          </svg>
+          <div>
+            <span class="contact-row__label">Téléphone</span>
+            <a class="contact-row__value" href="tel:+21671256751">(+216) 71 256 751</a><br>
+            <a class="contact-row__value" href="tel:+21671256752">(+216) 71 256 752</a><br>
+            <a class="contact-row__value" href="tel:+21671256738">(+216) 71 256 738</a>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <svg width="24" height="24" class="contact-row__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="2.5" y="4.5" width="19" height="15" rx="1.5"/><path d="m3 6 9 6.5L21 6"/>
+          </svg>
+          <div>
+            <span class="contact-row__label">Courriel</span>
+            <a class="contact-row__value" href="mailto:avocats-conseils@jurisaffaires.net">avocats-conseils@jurisaffaires.net</a>
+          </div>
+        </div>
+
+        <p class="contact-card__hours">
+          Lundi au vendredi — 8h00 à 18h30<br>
+          Télécopieur : (+216) 71 256 737
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>

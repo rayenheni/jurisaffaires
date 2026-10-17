@@ -1,0 +1,2119 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Static page generator for the JurisAffaires homepage concept demo.
+
+The output is plain static HTML — the site runs by opening index.html and
+never needs this script. It exists so the shared chrome (head, header,
+mobile menu, footer, sticky contact bar, CTA band) lives in ONE place
+instead of being copy-pasted into every file.
+
+    python3 tools/build_pages.py
+
+Content rules: every lawyer, biography, client logo, address, phone number,
+publication title and legal area below is taken from jurisaffaires.tn or the
+brief. Nothing is invented.
+"""
+
+import os
+import io
+import re
+import hashlib
+import unicodedata
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# ---------------------------------------------------------------- constants
+
+NAME       = "JurisAffaires"
+LEGAL_NAME = "Juris Affaires Avocats &amp; Conseils"
+SITE_URL   = "https://www.jurisaffaires.tn/"
+
+ADDRESS_1  = "45, rue Ali Darghouth"
+ADDRESS_2  = "1001 Tunis — Tunisie"
+PHONE_MAIN = "(+216) 71 256 751"
+PHONE_2    = "(+216) 71 256 752"
+PHONE_3    = "(+216) 71 256 738"
+FAX        = "(+216) 71 256 737"
+EMAIL      = "avocats-conseils@jurisaffaires.net"
+HOURS      = "Lundi au vendredi — 8h00 à 18h30"
+
+NAV = [
+    ("le-cabinet.html",    "Le Cabinet"),
+    ("expertises.html",    "Expertises"),
+    ("equipe.html",        "Équipe"),
+    ("publications.html",  "Publications"),
+    ("references.html",    "Références"),
+    ("contact.html",       "Contact"),
+]
+
+def slugify(text):
+    text = text.replace("&amp;", " et ").replace("&", " et ")
+    text = unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+EXPERTISE_SUBNAV = [
+    ("expertises.html",                              "Vue d'ensemble"),
+    ("expertise-droit-des-affaires.html",            "Droit des affaires"),
+    ("expertise-banque-finance-assurances.html",     "Banque &amp; assurances"),
+    ("expertise-immobilier-social-maritime.html",    "Immobilier &amp; social"),
+    ("expertise-contentieux-penal-libertes.html",    "Contentieux &amp; libertés"),
+    ("expertise-droit-du-sport.html",                "Droit du sport"),
+]
+
+PILLARS = [
+    dict(
+        num="01", slug="expertise-droit-des-affaires.html",
+        title="Droit des affaires",
+        hero="Constituer, financer, céder, restructurer.",
+        lede="De la start-up à la levée de fonds, chaque étape accompagnée.",
+        card="Sociétés, opérations, restructuration, droit commercial.",
+        items=["Droit des sociétés", "Opérations de cession d'entreprise",
+               "Restructuration &amp; levée de fonds",
+               "Arbitrage et contentieux des sociétés commerciales"],
+    ),
+    dict(
+        num="02", slug="expertise-banque-finance-assurances.html",
+        title="Banque, finance &amp; assurances",
+        hero="Sécuriser le financement, couvrir le risque.",
+        lede="Du financement à la saison des sinistres.",
+        card="Droit bancaire, financement, fiscalité, assurances.",
+        items=["Droit bancaire et financier",
+               "Financement, conformité &amp; bancassurance",
+               "Droit fiscal", "Droit des assurances"],
+    ),
+    dict(
+        num="03", slug="expertise-immobilier-social-maritime.html",
+        title="Immobilier, social &amp; maritime",
+        hero="Le patrimoine, le travail, le transport maritime.",
+        lede="Trois sujets où le conseil doit précéder le différend.",
+        card="Transactions, litiges immobiliers, droit social, droit maritime.",
+        items=["Transactions &amp; ventes aux enchères publiques",
+               "Fiscalité immobilière",
+               "Droit social et prud'hommes", "Droit maritime"],
+    ),
+    dict(
+        num="04", slug="expertise-contentieux-penal-libertes.html",
+        title="Contentieux, pénal &amp; libertés",
+        hero="Défendre les intérêts, protéger les personnes.",
+        lede="Litiges, pénal des affaires, affaires d'opinion, droits de l'Homme.",
+        card="Contentieux, droit pénal des affaires, droits de l'Homme.",
+        items=["Contentieux commercial et civil",
+               "Droit pénal général et spécial",
+               "Affaires politiques et d'opinion", "Droits de l'Homme"],
+    ),
+]
+
+SPORT = dict(
+    num="05", slug="expertise-droit-du-sport.html",
+    title="Droit du sport",
+    hero="Une spécialisation rare en Tunisie.",
+    lede="Assister et représenter ses clients dans les litiges sportifs.",
+    card="Litiges sportifs, responsabilité, manquements graves.",
+    items=["Règlement des litiges sportifs",
+           "Responsabilité et manquements graves",
+           "Assistance et représentation",
+           "Conseil aux acteurs du sport"],
+)
+
+ALL_EXPERTISES = PILLARS + [SPORT]
+
+TEAM = [
+    dict(
+        slug="avocat-slim-bouderbala.html", num="01",
+        first="Slim", last="BOUDERBALA",
+        role="Avocat Associé · Gérant",
+        img="slim-bouderbala.jpg",
+        alt="Portrait de Maître Slim Bouderbala, avocat associé et gérant du cabinet.",
+        bio="Co-fondateur et gérant de Juris Affaires Avocats &amp; Conseils. "
+            "Avocat spécialisé en droit des affaires, en droit immobilier et en "
+            "droit du sport, expert des opérations de restructuration, de cession "
+            "et de levée de fonds.",
+        facts=[("Spécialités", "Droit des affaires · Droit immobilier · Droit du sport"),
+               ("Expertise", "Restructuration, cession et levée de fonds"),
+               ("Fonction", "Co-fondateur et gérant du cabinet")],
+        tags=["Droit des affaires", "Droit du sport", "Immobilier", "Restructuration"],
+        expertises=[0, 4, 2],
+    ),
+    dict(
+        slug="avocate-faten-guemri.html", num="02",
+        first="Faten", last="GUEMRI",
+        role="Avocate Associée · Co-gérante",
+        img="faten-guemri.jpg",
+        alt="Portrait de Maître Faten Guemri, avocate associée du cabinet.",
+        bio="Co-fondatrice et co-gérante du cabinet Juris Affaires Avocats &amp; "
+            "Conseils. Avocate associée, experte juriste dans les opérations de "
+            "cession d'entreprise, spécialisée en arbitrage et en contentieux des "
+            "sociétés commerciales.",
+        facts=[("Spécialités", "Cession d'entreprise · Arbitrage · Sociétés commerciales"),
+               ("Expertise", "Contentieux des sociétés commerciales"),
+               ("Fonction", "Co-fondatrice et co-gérante du cabinet")],
+        tags=["Cession d'entreprise", "Arbitrage", "Sociétés commerciales", "Contentieux"],
+        expertises=[0, 3],
+    ),
+    dict(
+        slug="avocat-sahbi-bouderbala.html", num="03",
+        first="Med Sahbi", last="BOUDERBALA",
+        role="Associé Senior",
+        img="sahbi-bouderbala.jpg",
+        alt="Portrait de Maître Med Sahbi Bouderbala, avocat senior associé.",
+        bio="Avocat senior spécialisé en droit maritime, droit des assurances, "
+            "droit bancaire, droit commercial et droit fiscal. Président de la "
+            "Ligue des Droits de l'Homme de Nabeul et membre du Parlement Tunisien.",
+        facts=[("Spécialités", "Droit maritime · Assurances · Banque · Fiscal"),
+               ("Distinctions", "Membre du Parlement Tunisien — Président de la Ligue des Droits de l'Homme de Nabeul"),
+               ("Fonction", "Associé senior du cabinet")],
+        tags=["Droit maritime", "Assurances", "Droit bancaire", "Droits de l'Homme"],
+        expertises=[1, 2, 3],
+    ),
+    dict(
+        slug="avocat-taoufik-bouderbala.html", num="04",
+        first="Taoufik", last="BOUDERBALA",
+        role="Associé Senior",
+        img="taoufik-bouderbala.jpg",
+        alt="Portrait de Maître Taoufik Bouderbala, avocat senior associé.",
+        bio="Avocat senior spécialisé en droit pénal général et spécial, affaires "
+            "politiques et d'opinion, droit maritime, droit des assurances, droit "
+            "bancaire, commercial et fiscal. Président honorifique de la LTDH.",
+        facts=[("Spécialités", "Droit pénal · Affaires d'opinion · Maritime · Banque"),
+               ("Distinctions", "Président honorifique de la Ligue Tunisienne des Droits de l'Homme"),
+               ("Fonction", "Associé senior du cabinet")],
+        tags=["Droit pénal", "Affaires d'opinion", "Droit bancaire", "Droit maritime"],
+        expertises=[3, 1, 2],
+    ),
+]
+
+CLIENTS = [
+    ("bft-stb.png",     "BFT — STB Bank"),
+    ("qnb.png",         "QNB Bank"),
+    ("tsb.png",         "Tunisian Saudi Bank"),
+    ("conect.png",      "CONECT — Confédération des Entreprises Citoyennes de Tunisie"),
+    ("seabel.png",      "Seabel Hotels — Tunisie Groupe"),
+    ("palm-beach.png",  "Palm Beach Hotels — Tunisie"),
+    ("villa-didon.png", "Villa Didon Carthage"),
+    ("finzi.png",       "Finzi — Usines Graphiques"),
+    ("systra-studi.png","Groupe STUDI"),
+    ("gamma-plast.png", "Gamma Plast"),
+    ("mcm.png",         "MCM — Marketing Communication Media"),
+    ("croissant-rouge.png", "Le Croissant-Rouge Tunisien"),
+]
+
+PUBLICATIONS = [
+    dict(
+        title="La cession du fonds de commerce exploité en Franchise",
+        date="24 mai 2018",
+        kicker="Fonds de commerce, franchise et transmission d'entreprise.",
+        text="Le fonds de commerce exploité en franchise présente des "
+             "particularités propres, tant dans sa valeur que dans les "
+             "modalités de sa cession.",
+        url="https://www.jurisaffaires.tn/droit/cession-du-fonds-de-commerce-exploite-en-franchise/",
+    ),
+    dict(
+        title="Plaidoyer pour la consécration du droit aux loisirs dans les "
+              "dispositions de la constitution de la deuxième République",
+        date="24 janvier 2018",
+        kicker="Droits fondamentaux et protection constitutionnelle des libertés.",
+        text="Un plaidoyer en faveur de l'inscription du droit aux loisirs dans "
+             "la Constitution de la deuxième République.",
+        url="https://www.jurisaffaires.tn/droit/plaidoyer-consecration-droit-aux-loisirs-dans-dispositions-constitution-deuxieme-republique/",
+    ),
+]
+
+STATS_FIXED = [
+    ("40+",  "Années d'expérience"),
+    ("4",    "Avocats au Barreau de Tunis"),
+    ("15",   "Domaines d'intervention"),
+    ("5",    "Pôles d'expertise structurés"),
+]
+
+ALL_DOMAINS = [
+    "Droit des sociétés", "Droit bancaire", "Droit fiscal", "Droit commercial",
+    "Contentieux commercial", "Droit immobilier", "Droit social",
+    "Droit du sport", "Droit pénal général", "Droit pénal spécial",
+    "Affaires politiques et d'opinion", "Droit maritime", "Droit des assurances",
+    "Droit civil", "Droits de l'Homme",
+]
+
+ARROW = ('<svg class="btn__arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" '
+         'stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>')
+
+# Same glyph, but carrying the index-row hover behaviour instead.
+ARROW_IDX = ARROW.replace('class="btn__arrow"', 'class="hero-index__arrow"')
+
+# ---------------------------------------------------------------- chrome
+
+def asset_version(rel_path):
+    """Empreinte courte du fichier, pour casser le cache du navigateur.
+
+    Sans cela, un navigateur qui a déjà chargé une version antérieure de
+    style.css peut conserver l'ancienne feuille de style tout en récupérant
+    le nouveau HTML : la page s'affiche alors sans aucune mise en forme.
+    """
+    try:
+        with open(os.path.join(ROOT, rel_path), "rb") as fh:
+            return hashlib.md5(fh.read()).hexdigest()[:8]
+    except OSError:
+        return "0"
+
+
+CSS_V = asset_version(os.path.join("assets", "css", "style.css"))
+JS_V = asset_version(os.path.join("assets", "js", "main.js"))
+
+# Sécurité de présentation : si style.css arrive en retard ou échoue, aucun
+# SVG inline ne doit pouvoir s'étendre sur toute la page.
+CRITICAL_CSS = """<style>
+svg{width:1em;height:1em;flex:none}
+.brand__mark{width:30px;height:30px}
+</style>"""
+
+
+def head(title, desc, extra=""):
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="theme-color" content="#0B1620">
+<link rel="canonical" href="{SITE_URL}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' fill='%230B1620'/%3E%3Cg fill='none' stroke='%23C29A6C' stroke-width='1.4'%3E%3Crect x='4' y='4' width='26' height='26'/%3E%3Cpath d='M4 17h26M17 4v26' opacity='.45'/%3E%3C/g%3E%3Crect x='17' y='17' width='13' height='13' fill='%23C29A6C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,200..500;1,6..72,200..400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css?v={CSS_V}">
+<script>document.documentElement.className += " js";</script>
+{CRITICAL_CSS}
+{extra}</head>
+
+<body>
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+<div class="scroll-progress" id="progress" aria-hidden="true"></div>
+"""
+
+
+def header(active=""):
+    links = "\n".join(
+        f'        <a class="nav__link{" is-active" if href == active else ""}" href="{href}">{label}</a>'
+        for href, label in NAV)
+    return f"""
+<header class="header" id="header">
+  <div class="container">
+    <div class="header__bar">
+
+      <a class="brand" href="index.html" aria-label="JurisAffaires — retour à l'accueil">
+        <svg width="34" height="34" class="brand__mark" viewBox="0 0 34 34" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.3">
+            <rect x="0.7" y="0.7" width="32.6" height="32.6"/>
+            <path d="M0.7 17h32.6M17 0.7v32.6" opacity=".4"/>
+          </g>
+          <rect x="17" y="17" width="16.3" height="16.3" fill="currentColor"/>
+        </svg>
+        <span class="brand__text">
+          <span class="brand__name">Juris<em>Affaires</em></span>
+          <span class="brand__sub">Avocats &amp; Conseils · Tunis</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Navigation principale">
+{links}
+      </nav>
+
+      <div class="header__actions">
+        <a class="header__phone" href="tel:+21671256751">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+          </svg>
+          {PHONE_MAIN}
+        </a>
+
+        <a class="btn btn--sm header__cta" href="contact.html">
+          Prendre contact
+          {ARROW}
+        </a>
+
+        <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="burger__lines"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Navigation mobile">
+    <ul class="mobile-menu__list">
+{chr(10).join(f'      <li class="mobile-menu__item"><a class="mobile-menu__link" href="{h}" style="animation-delay:.{i * 6 + 6:02d}s"><span>{i + 1:02d}</span>{l}</a></li>' for i, (h, l) in enumerate(NAV))}
+    </ul>
+  </nav>
+
+  <div class="mobile-menu__foot">
+    <dl class="mobile-menu__contact">
+      <dt>Adresse</dt>
+      <dd>{ADDRESS_1} — {ADDRESS_2.replace(' — Tunisie', '')}</dd>
+      <dt>Téléphone</dt>
+      <dd><a href="tel:+21671256751">{PHONE_MAIN}</a></dd>
+      <dt>Courriel</dt>
+      <dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd>
+    </dl>
+    <div class="mobile-menu__actions">
+      <a class="btn" href="tel:+21671256751">Appeler le cabinet</a>
+      <a class="btn btn--ghost btn--ghost-light" href="contact.html">Prendre contact</a>
+    </div>
+  </div>
+</div>
+"""
+
+
+def subnav(current):
+    links = "\n".join(
+        f'      <a class="subnav__link{" is-current" if h == current else ""}" href="{h}">{l}</a>'
+        for h, l in EXPERTISE_SUBNAV)
+    return f"""
+<nav class="subnav" aria-label="Nos expertises">
+  <div class="container">
+    <div class="subnav__inner">
+{links}
+    </div>
+  </div>
+</nav>
+"""
+
+
+def footer():
+    return f"""
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+
+      <div class="footer__brand">
+        <a class="brand" href="index.html" aria-label="JurisAffaires — retour à l'accueil">
+          <svg width="34" height="34" class="brand__mark" viewBox="0 0 34 34" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="1.3">
+              <rect x="0.7" y="0.7" width="32.6" height="32.6"/>
+              <path d="M0.7 17h32.6M17 0.7v32.6" opacity=".4"/>
+            </g>
+            <rect x="17" y="17" width="16.3" height="16.3" fill="currentColor"/>
+          </svg>
+          <span class="brand__text">
+            <span class="brand__name">Juris<em>Affaires</em></span>
+            <span class="brand__sub">Avocats &amp; Conseils · Tunis</span>
+          </span>
+        </a>
+        <p>
+          Société professionnelle d'avocats inscrite au Barreau de Tunis, au
+          service de la sécurité juridique et de l'efficacité de vos relations
+          contractuelles depuis plus de quarante années.
+        </p>
+        <p class="footer__motto">Servir — Conseiller — Défendre</p>
+      </div>
+
+      <div class="footer__col">
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="le-cabinet.html">Le Cabinet</a></li>
+          <li><a href="expertises.html">Expertises</a></li>
+          <li><a href="equipe.html">Équipe</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="references.html">Références</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h3>Expertises</h3>
+        <ul>
+          <li><a href="{PILLARS[0]['slug']}">Droit des affaires</a></li>
+          <li><a href="{PILLARS[1]['slug']}">Banque, finance &amp; assurances</a></li>
+          <li><a href="{PILLARS[2]['slug']}">Immobilier, social &amp; maritime</a></li>
+          <li><a href="{PILLARS[3]['slug']}">Contentieux, pénal &amp; libertés</a></li>
+          <li><a href="{SPORT['slug']}">Droit du sport</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h3>Contact</h3>
+        <ul>
+          <li>{ADDRESS_1}<br>{ADDRESS_2}</li>
+          <li><a href="tel:+21671256751">{PHONE_MAIN}</a></li>
+          <li><a href="tel:+21671256752">{PHONE_2}</a></li>
+          <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">
+        © <span id="year">2026</span> <b>{LEGAL_NAME}</b> — Tous droits réservés.
+        <span class="footer__demo">Maquette de refonte — démonstration.</span>
+      </p>
+      <nav class="footer__legal" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="politique-de-confidentialite.html">Politique de confidentialité</a>
+        <a href="{SITE_URL}" target="_blank" rel="noopener">Voir le site en ligne</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<div class="sticky-bar" id="stickyBar">
+  <a class="sticky-bar__btn" href="tel:+21671256751">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+    </svg>
+    Appeler
+  </a>
+  <a class="sticky-bar__btn sticky-bar__btn--accent" href="contact.html">Prendre contact</a>
+</div>
+
+<script src="assets/js/main.js?v={JS_V}"></script>
+</body>
+</html>
+"""
+
+
+def page_h(*parts, title, desc, active="", extra_head="", body_class=""):
+    """Assemble a full document from a shared chrome + page body."""
+    return (head(title, desc, extra_head)
+            + header(active)
+            + f'\n<main id="main"{(" class=" + body_class) if body_class else ""}>\n'
+            + "\n".join(parts)
+            + "\n</main>\n"
+            + footer())
+
+
+def write(name, html):
+    # Canonical propre a chaque page : on le resout ici, au seul endroit ou
+    # l'on connait a la fois le nom du fichier et le document assemble.
+    # Dimensions intrinsiques sur chaque <img> qui n'en a pas : le navigateur
+    # reserve la place avant chargement, ce qui supprime le saut de mise en page.
+    import re as _re
+    from PIL import Image as _Image
+
+    def _dims(tag):
+        m = _re.search(r'src="([^"]+)"', tag)
+        if not m:
+            return tag
+        fp = os.path.join(ROOT, m.group(1).split("?")[0])
+        if not os.path.exists(fp):
+            return tag
+        try:
+            with _Image.open(fp) as im:
+                w, h = im.size
+        except Exception:
+            return tag
+        return tag[:-1].rstrip() + ' width="%d" height="%d">' % (w, h)
+
+    html = _re.sub(r"<img(?![^>]*\swidth=)[^>]*>", lambda _m: _dims(_m.group(0)), html)
+
+    if name == "404.html":
+        html = html.replace('<link rel="canonical" href="%s">' % SITE_URL, "", 1)
+    else:
+        url = SITE_URL + "/" if name == "index.html" else SITE_URL + "/" + name
+        html = html.replace(
+            '<link rel="canonical" href="%s">' % SITE_URL,
+            '<link rel="canonical" href="%s">' % url, 1)
+    path = os.path.join(ROOT, name)
+    with io.open(path, "w", encoding="utf-8") as fh:
+        fh.write(html)
+    print("  +", name)
+
+
+# ---------------------------------------------------------------- helpers
+
+def crumb(*items):
+    """items: list of (label, href|None). Last one is the current page."""
+    out = ['<nav class="breadcrumb" aria-label="Fil d\'Ariane">',
+           '  <a href="index.html">Accueil</a>']
+    for i, (label, href) in enumerate(items):
+        out.append('  <span aria-hidden="true">/</span>')
+        if href:
+            out.append(f'  <a href="{href}">{label}</a>')
+        else:
+            out.append(f'  <span aria-current="page">{label}</span>')
+    out.append("</nav>")
+    return "\n".join(out)
+
+
+def stat_strip(dark=False, stats=None):
+    stats = stats or STATS_FIXED
+    items = "\n".join(
+        f'    <div class="stat-strip__item"><p class="stat-strip__value">{v}</p>'
+        f'<p class="stat-strip__label">{l}</p></div>' for v, l in stats)
+    cls = "stat-strip" + (" on-dark" if dark else "")
+    return f'<div class="{cls}">\n{items}\n</div>'
+
+
+def logo_grid(dark=True):
+    cells = "\n".join(
+        f'    <div class="logo-cell"><img src="assets/img/clients/{f}" alt="{a}" loading="lazy"></div>'
+        for f, a in CLIENTS)
+    return f'<div class="logo-grid" data-reveal="fade">\n{cells}\n</div>'
+
+
+def cta_band(title, text, points=None, primary="Prendre contact",
+             primary_href="contact.html", secondary="Appeler le cabinet",
+             secondary_href="tel:+21671256751"):
+    pts = "".join(f'<li><b>{n}</b><span>{t}</span></li>' for n, t in (points or []))
+    side = (f'<ul class="cta-band__points">{pts}</ul>' if pts else "")
+    return f"""
+<section class="cta-band grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="cta-band__inner">
+      <div>
+        <p class="eyebrow" data-reveal>Passons à l'action</p>
+        <h2 class="cta-band__title" data-reveal>{title}</h2>
+        <p class="cta-band__text" data-reveal style="--reveal-delay:80ms">{text}</p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="{primary_href}">{primary} {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="{secondary_href}">{secondary}</a>
+        </div>
+      </div>
+      <div data-reveal="right" style="--reveal-delay:100ms">
+        {side}
+      </div>
+    </div>
+  </div>
+</section>
+"""
+
+
+def member_card(m):
+    tags = "\n".join(f'          <li>{t}</li>' for t in m["tags"])
+    return f"""
+        <article class="member" data-reveal="fade">
+          <a class="member__photo" href="{m['slug']}" aria-label="Voir le profil de Maître {m['first']} {m['last']}">
+            <span class="member__num">{m['num']}</span>
+            <img src="assets/img/team/{m['img']}" alt="{m['alt']}" width="500" height="500" loading="lazy">
+          </a>
+          <h3 class="member__name"><span>Maître</span><a href="{m['slug']}">{m['first']} {m['last']}</a></h3>
+          <p class="member__role">{m['role']}</p>
+          <ul class="member__tags">
+{tags}
+          </ul>
+          <a class="link-line member__cta" href="{m['slug']}">
+            Voir le profil
+            {ARROW}
+          </a>
+        </article>
+"""
+
+
+def pillar_card(p):
+    items = "\n".join(f'          <li>{i}</li>' for i in p["items"])
+    return f"""
+        <a class="pillar" href="{p['slug']}" data-reveal="scale">
+          <span class="pillar__num">{p['num']}</span>
+          <h3 class="pillar__title">{p['title']}</h3>
+          <p class="pillar__desc">{p['hero']}</p>
+          <ul class="pillar__items">
+{items}
+          </ul>
+          <span class="pillar__cta">Découvrir</span>
+          <span class="pillar__go">{ARROW}</span>
+        </a>
+"""
+
+
+def related_cards(slugs):
+    out = []
+    for idx in slugs:
+        e = ALL_EXPERTISES[idx]
+        out.append(f"""
+        <a class="related__item" href="{e['slug']}" data-reveal="fade">
+          <span class="related__num">{e['num']}</span>
+          <span class="related__title">{e['title']}</span>
+          <span class="related__meta">Consulter l'expertise {ARROW}</span>
+        </a>""")
+    return "\n".join(out)
+
+
+# ================================================================ HOMEPAGE
+# The homepage markup is carried over verbatim from the verified build; only
+# the navigation now points at real pages instead of in-page anchors.
+
+def build_home():
+    html = (head(
+        "JurisAffaires — Cabinet d'Avocats &amp; Conseils | Tunis",
+        "JurisAffaires, cabinet d'avocats et de conseils à Tunis. Plus de 40 ans "
+        "d'expérience au service des entreprises, des institutions et des "
+        "dirigeants. Droit des affaires, banque et finances, immobilier, "
+        "contentieux, pénal et droits de l'Homme, droit du sport.")
+        + header("index.html")
+        + '\n<main id="main">\n')
+
+    with io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".home-section.html"), encoding="utf-8") as fh:
+        html += fh.read()
+
+    html += "\n</main>\n" + footer()
+    write("index.html", html)
+
+
+# ================================================================ LE CABINET
+
+def build_cabinet():
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+
+      <div>
+        {crumb(("Le Cabinet", None))}
+        <p class="eyebrow" data-reveal>Le cabinet</p>
+        <h1 class="page-hero__title" data-reveal>Une histoire. Une <em>exigence</em>. Une vision.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Quatre avocats du Barreau de Tunis. Une promesse&nbsp;: la sécurité
+          juridique de vos projets.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="contact.html">Prendre contact {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="equipe.html">Rencontrer l'équipe</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    {stat_strip(stats=STATS_FIXED)}
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="split split--wide-right">
+      <div class="on-dark" style="background:var(--ink);padding:clamp(28px,3vw,40px)">
+        <blockquote class="pull" style="margin:0;border:0;padding:0;color:#FBF8F2" data-reveal>
+          « Servir — Conseiller — Défendre »
+        </blockquote>
+        <p data-reveal style="--reveal-delay:80ms;margin-top:26px;padding-top:20px;border-top:1px solid var(--line-dark);font-size:.875rem;line-height:1.7;color:rgba(244,240,232,.6);font-weight:300">
+          L'engagement de chaque avocat du cabinet.
+        </p>
+      </div>
+
+      <div class="prose">
+        <figure class="editorial editorial--sm" data-reveal="fade" style="margin-bottom:30px">
+          <img class="editorial__img" src="assets/img/editorial-office.jpg"
+               alt="Salle de réunion du cabinet : grande table en bois, fenêtres hautes, lumière du jour."
+               width="1408" height="768" loading="lazy">
+          <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
+        </figure>
+        <p class="eyebrow" data-reveal>Notre méthode</p>
+        <h2 data-reveal>Comprendre avant d'agir.</h2>
+        <p data-reveal style="--reveal-delay:60ms">
+          Comprendre la problématique, proposer la stratégie qui optimise les
+          chances de succès de vos affaires.
+        </p>
+        <p data-reveal style="--reveal-delay:100ms">
+          <strong>Me Taoufik BOUDERBALA</strong> et <strong>Me Med Sahbi
+          BOUDERBALA</strong> ont associé leurs compétences à celles de
+          <strong>Me Slim BOUDERBALA</strong> et <strong>Me Faten GUEMRI</strong>&nbsp;:
+          quatre profils, cinq pôles, un seul cabinet.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Nos exigences</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Trois valeurs qui engagent.</span></span></h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Elles ne s'affichent pas&nbsp;: elles se pratiquent.
+      </p>
+    </div>
+
+    <div class="features stagger stagger-3">
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">01</span>
+        <h3 class="feature__title">Écoute</h3>
+        <p class="feature__text">
+          Une lecture attentive avant toute analyse.
+        </p>
+      </div>
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">02</span>
+        <h3 class="feature__title">Rigueur</h3>
+        <p class="feature__text">
+          Un traitement exigeant, un accompagnement continu.
+        </p>
+      </div>
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">03</span>
+        <h3 class="feature__title">Réactivité</h3>
+        <p class="feature__text">
+          L'efficacité au service de la défense.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink cabinet grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="cabinet__grid">
+      <figure class="cabinet__figure" data-reveal="left">
+        <img src="assets/img/hero-architecture.jpg" alt="Détail d'une façade architecturale — lumière et ombre, Tunis." width="900" height="1125" loading="lazy">
+        <figcaption>{ADDRESS_1} — Tunis</figcaption>
+      </figure>
+      <div class="cabinet__body">
+        <p class="eyebrow" data-reveal>Identité</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Un cabinet à taille humaine.</span></span></h2>
+        <span class="draw-x" data-reveal style="margin:28px 0 28px"></span>
+        <p class="body-text" data-reveal style="--reveal-delay:80ms">
+          Société professionnelle d'avocats, en plein centre-ville de Tunis.
+        </p>
+        <blockquote class="cabinet__quote" data-reveal="fade" style="--reveal-delay:140ms">
+          « Créer, développer, financer, céder, restructurer : nous vous
+          accompagnons. Difficultés avec vos prestataires : nous vous assistons
+          et vous représentons. »
+        </blockquote>
+        <div data-reveal style="--reveal-delay:180ms;margin-top:34px">
+          <a class="btn" href="equipe.html">Découvrir l'équipe {ARROW}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>02</p>
+        <p class="eyebrow" data-reveal>Domaines d'intervention</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Quinze domaines, une seule équipe.</span></span></h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Conseil et contentieux, avec l'avocat spécialisé du sujet.
+      </p>
+    </div>
+    <ul class="pillars-mini stagger stagger-3">
+      <li class="pillars-mini__item"><span class="pillars-mini__num">01</span><span class="pillars-mini__name">Droit des sociétés</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">02</span><span class="pillars-mini__name">Droit bancaire</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">03</span><span class="pillars-mini__name">Droit fiscal</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">04</span><span class="pillars-mini__name">Droit commercial</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">05</span><span class="pillars-mini__name">Contentieux commercial</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">06</span><span class="pillars-mini__name">Droit immobilier</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">07</span><span class="pillars-mini__name">Droit social</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">08</span><span class="pillars-mini__name">Droit du sport</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">09</span><span class="pillars-mini__name">Droit pénal général</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">10</span><span class="pillars-mini__name">Droit pénal spécial</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">11</span><span class="pillars-mini__name">Affaires politiques et d'opinion</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">12</span><span class="pillars-mini__name">Droit maritime</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">13</span><span class="pillars-mini__name">Droit des assurances</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">14</span><span class="pillars-mini__name">Droit civil</span></li>
+      <li class="pillars-mini__item"><span class="pillars-mini__num">15</span><span class="pillars-mini__name">Droits de l'Homme</span></li>
+    </ul>
+    <div data-reveal style="margin-top:36px">
+      <a class="btn btn--ghost" href="expertises.html">Voir les cinq pôles d'expertise {ARROW}</a>
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Parlons de votre dossier.",
+        "Un premier échange confidentiel suffit à vérifier que nous sommes le "
+        "bon interlocuteur.")
+    write("le-cabinet.html", page_h(
+        body, active="le-cabinet.html",
+        title="Le Cabinet — JurisAffaires Avocats &amp; Conseils, Tunis",
+        desc="Plus de 40 ans d'expérience, quatre avocats du Barreau de Tunis, "
+             "quinze domaines d'intervention. Découvrez la méthode, les valeurs "
+             "et l'identité du cabinet JurisAffaires."))
+
+
+# ================================================================ EXPERTISES HUB
+
+def build_expertise_hub():
+    cards = "\n".join(pillar_card(p) for p in PILLARS)
+    idx_items = "\n".join(f"""
+            <li class="hero-index__item">
+              <a class="hero-index__link" href="{e['slug']}">
+                <span class="hero-index__num">{e['num']}</span>
+                <span class="hero-index__label">{e['title']}</span>
+                {ARROW_IDX}
+              </a>
+            </li>""" for e in ALL_EXPERTISES)
+
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+
+      <div>
+        {crumb(("Expertises", None))}
+        <p class="eyebrow" data-reveal>Expertises</p>
+        <h1 class="page-hero__title" data-reveal>Cinq pôles. <em>Une seule</em> exigence.</h1>
+        <p class="page-hero__text" data-reveal style="--reveal-delay:80ms">
+          Quinze domaines, cinq pôles. Chaque dossier est confié à l'avocat
+          dont la spécialisation correspond au sujet traité.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="contact.html">Décrire votre projet {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="equipe.html">Voir qui intervient</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{subnav("expertises.html")}
+
+<section class="section section--paper">
+  <div class="container">
+    <figure class="editorial editorial--wide" data-reveal="fade" style="margin-bottom:clamp(30px,3.4vw,52px)">
+      <img class="editorial__img" src="assets/img/editorial-city.jpg"
+           alt="Vue de la ville de Tunis en fin de journée, brume marine à l'horizon."
+           width="1408" height="768" loading="lazy">
+      <figcaption>Tunis — la ville où le cabinet exerce</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Les quatre pôles</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Le droit des affaires, en quatre blocs.</span></span></h2>
+      </div>
+    </div>
+
+    <div class="expertise-grid stagger stagger-4">
+{cards}
+    </div>
+
+    <p class="expertise-note" data-reveal="fade">
+      <strong>Conseil &amp; contentieux.</strong>
+      <span>En assistance permanente comme en représentation.</span>
+    </p>
+  </div>
+</section>
+
+<section class="section section--paper-2">
+  <div class="container">
+    <div class="sport" id="sport" style="margin-top:0">
+      <div class="sport__bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="sport__inner">
+          <div>
+            <span class="sport__flag" data-reveal="fade"><i></i> Expertise signature</span>
+            <h2 class="sport__title wipe" data-reveal><span><span>Droit du sport</span></span></h2>
+            <p class="sport__desc" data-reveal style="--reveal-delay:100ms">
+              Une spécialisation rare dans le paysage juridique tunisien.
+            </p>
+            <a class="btn" href="{SPORT['slug']}" data-reveal style="--reveal-delay:160ms;margin-top:8px">
+              Découvrir cette expertise {ARROW}
+            </a>
+          </div>
+          <ul class="sport__list" data-reveal="right" style="--reveal-delay:140ms">
+            <li><span>01</span>Règlement des litiges sportifs</li>
+            <li><span>02</span>Responsabilité et manquements graves</li>
+            <li><span>03</span>Assistance et représentation</li>
+            <li><span>04</span>Conseil aux acteurs du sport</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-left">
+      <div class="prose on-dark">
+        <p class="eyebrow" data-reveal>Conseil &amp; contentieux</p>
+        <h2 data-reveal>Le même cabinet, avant et après le litige.</h2>
+        <p data-reveal style="--reveal-delay:60ms">
+          Nos dossiers commencent par une question de conseil&nbsp;: structurer
+          une opération, sécuriser un contrat, évaluer un risque. Lorsqu'elle
+          devient un litige, nous reprenons le dossier sans perdre la stratégie.
+        </p>
+      </div>
+      <div class="sticky-side">
+        <blockquote class="pull" data-reveal="right" style="margin-top:0">
+          Conseil et contentieux, sur le même dossier.
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Quel est votre sujet&nbsp;?",
+        "Quelques lignes suffisent pour une première analyse.")
+    write("expertises.html", page_h(
+        body, active="expertises.html",
+        title="Expertises — JurisAffaires Avocats &amp; Conseils, Tunis",
+        desc="Cinq pôles d'expertise&nbsp;: droit des affaires, banque et "
+             "assurances, immobilier et social, contentieux et pénal, droit du "
+             "sport. Quinze domaines d'intervention, conseil et contentieux."))
+
+
+# ================================================================ EXPERTISE PAGES
+
+PRACTICES = {
+    0: [("Droit des sociétés", "Création, cession et restructuration de sociétés. Constitution, gouvernance et opérations sur le capital.", "Conseil"),
+        ("Opérations de cession d'entreprise", "Transmission d'entreprise, structuration et négociation de l'opération.", "Conseil"),
+        ("Restructuration &amp; levée de fonds", "Expertise des opérations de restructuration, de cession et de levée de fonds.", "Conseil"),
+        ("Arbitrage &amp; contentieux des sociétés commerciales", "Règlement amiable ou contentieux des différends entre associés et entre sociétés.", "Contentieux"),
+        ("Droit commercial", "Actes de commerce, contrats commerciaux et litiges afférents.", "Contentieux")],
+    1: [("Droit bancaire et financier", "Le cabinet dispose d'une expertise reconnue dans le règlement de tous différends du domaine bancaire.", "Contentieux"),
+        ("Projets de développement", "Assistance et représentation sur tout projet de développement et de financement.", "Conseil"),
+        ("Conformité &amp; bancassurance", "Conformité bancaire et questions liées à la bancassurance.", "Conseil"),
+        ("Droit fiscal", "Assistance et représentation en matière fiscale, en coordination avec vos conseils comptables.", "Conseil"),
+        ("Droit des assurances", "Couverture, sinistres, recours et Contentieux d'assurance.", "Contentieux")],
+    2: [("Transactions immobilières", "Achat, vente et fiscalité immobilières. Cabinet notamment spécialisé en droit des ventes immobilières aux enchères publiques.", "Conseil"),
+        ("Droit social &amp; prud'hommes", "Expertise reconnue dans le traitement des litiges des prud'hommes. Une approche préventive est toujours conseillée, dans l'objectif de garantir un certain équilibre entre le patronat et le salariat.", "Contentieux"),
+        ("Droit maritime", "Droit maritime, en conseil comme en contentieux.", "Conseil"),
+        ("Droit civil", "Obligations, responsabilité et recours.", "Contentieux")],
+    3: [("Contentieux commercial &amp; civil", "Défense de vos intérêts devant les tribunaux et les instances.", "Contentieux"),
+        ("Droit pénal général &amp; spécial", "Contentieux, risque pénal et assistance.", "Contentieux"),
+        ("Affaires politiques et d'opinion", "Accompagnement juridique dans un contexte politique ou d'opinion.", "Conseil"),
+        ("Droits de l'Homme", "Le cabinet met à votre service son expérience de plus de 40 ans dans la défense des droits inaliénables de la personne.", "Contentieux")],
+    4: [("Règlement des litiges sportifs", "Assistance et représentation pour le règlement des litiges sportifs.", "Contentieux"),
+        ("Responsabilité &amp; manquements graves", "Responsabilité des acteurs du sport, manquements graves et discipline.", "Contentieux"),
+        ("Assistance &amp; représentation", "Devant les instances sportives et juridictionnelles compétentes.", "Contentieux"),
+        ("Conseil aux acteurs du sport", "Conseil juridique aux acteurs du sport.", "Conseil")],
+}
+
+ENGAGEMENTS = {
+    0: [("Un interlocuteur identifié", "L'associé dont la spécialisation correspond au sujet."),
+        ("Sécurisation avant exécution", "Avant la signature, non après."),
+        ("Continuité conseil / contentieux", "Sans rupture de continuité.")],
+    1: [("Réactivité bancaire", "Délais courts&nbsp;: l'équipe adaptée est mobilisée immédiatement."),
+        ("Conseil et contentieux", "À l'amiable, puis en contentieux si nécessaire."),
+        ("Coordination avec vos conseils", "En binôme avec vos directions.")],
+    2: [("Approche préventive", "Avant que le litige ne naisse."),
+        ("Enchères publiques", "Ventes immobilières aux enchères publiques."),
+        ("Équilibre des intérêts", "Un accord qui préserve l'équilibre.")],
+    3: [("Délits d'affaires", "Risque pénal des entreprises, affaires d'opinion."),
+        ("Défense des libertés", "40 ans de défense des droits de la personne."),
+        ("Coordination pénal / civil", "Défense pénale et ses suites civiles.")],
+    4: [("Spécialisation assumée", "Un avocat spécialisé du cabinet."),
+        ("Connaissance du milieu", "Litiges sportifs, responsabilité des acteurs."),
+        ("Assistance &amp; représentation", "Assistance et représentation.")],
+}
+
+
+def build_expertise(e):
+    idx = ALL_EXPERTISES.index(e)
+    practices = PRACTICES[idx]
+    eng = ENGAGEMENTS[idx]
+
+    rows = "\n".join(f"""
+        <div class="practice__row" data-reveal="fade">
+          <span class="practice__num">{i + 1:02d}</span>
+          <h3 class="practice__title"><a href="{domain_slug(t)}">{t}</a></h3>
+          <span class="practice__tag">{tag}</span>
+          <p class="practice__desc">{d}</p>
+        </div>""" for i, (t, d, tag) in enumerate(practices))
+
+    engs = "\n".join(f"""
+        <div class="feature" data-reveal="fade">
+          <h3 class="feature__title">{t}</h3>
+          <p class="feature__text">{d}</p>
+        </div>""" for t, d in eng)
+
+    aside_items = "\n".join(
+        f'          <li><b>{i + 1:02d}</b><span>{t}</span></li>'
+        for i, (t, _, _) in enumerate(practices))
+
+    # lawyers linked to this expertise
+    lawyers = "\n".join(
+        f"""        <a class="related__item" href="{TEAM[j]['slug']}" data-reveal="fade">
+          <span class="related__num">Me</span>
+          <span class="related__title">{TEAM[j]['first']} {TEAM[j]['last']}</span>
+          <span class="related__meta">{TEAM[j]['role']}</span>
+        </a>""" for j, m in enumerate(TEAM) if idx in m["expertises"])
+
+    others = [i for i in range(5) if i != idx]
+
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <span class="page-hero__num" aria-hidden="true">{e['num']}</span>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--solo">
+
+      <div>
+        {crumb(("Expertises", "expertises.html"), (e["title"].replace("&amp;", "&"), None))}
+        <p class="eyebrow" data-reveal>Expertise {e['num']}</p>
+        <h1 class="page-hero__title" data-reveal>{e['title']}</h1>
+        <p class="hero-lede-strong" data-reveal style="--reveal-delay:60ms;font-family:var(--font-display);font-size:clamp(1.25rem,2.1vw,1.7rem);font-weight:300;line-height:1.3;color:var(--slate);max-width:20ch;margin-bottom:22px">{e['hero']}</p>
+        <p class="page-hero__text" data-reveal style="--reveal-delay:100ms">{e['lede']}</p>
+        <div class="btn-row" data-reveal style="--reveal-delay:160ms">
+          <a class="btn" href="contact.html">Parler de votre dossier {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">{PHONE_MAIN}</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{subnav(e['slug'])}
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="split split--wide-right">
+      <div class="prose">
+        <p class="eyebrow" data-reveal>Le périmètre</p>
+        <h2 data-reveal>Ce que couvre cette expertise.</h2>
+        <p data-reveal style="--reveal-delay:60ms">{e['card']} De la structuration à l'exécution.</p>
+      </div>
+      <div class="sticky-side">
+        <div class="aside-panel on-dark" style="background:var(--ink)" data-reveal="right">
+          <p class="aside-panel__title">En pratique</p>
+          <ul>
+            <li><b>01</b><span>Conseil et contentieux sur le même dossier</span></li>
+            <li><b>02</b><span>Confidentiel dès le premier échange</span></li>
+            <li><b>03</b><span>Cabinet au {ADDRESS_1}, Tunis</span></li>
+          </ul>
+          <a class="btn btn--sm" href="contact.html" style="margin-top:26px;width:100%">Prendre contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Nos interventions</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Les matières, une par une.</span></span></h2>
+      </div>
+    </div>
+    <div class="practice">
+{rows}
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>02</p>
+        <p class="eyebrow" data-reveal>Nos engagements</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Comment nous intervenons.</span></span></h2>
+      </div>
+    </div>
+    <div class="features stagger stagger-3">
+{engs}
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>03</p>
+        <p class="eyebrow" data-reveal>L'équipe</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Qui intervient sur ce dossier.</span></span></h2>
+      </div>
+    </div>
+    <div class="related stagger stagger-3">
+{lawyers}
+{related_cards(others[:3])}
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Une question sur ce sujet&nbsp;?",
+        "Échangez avec nos avocats avant de décider.")
+    write(e["slug"], page_h(
+        body, active="expertises.html",
+        title=f"{e['title'].replace('&amp;', '&')} — JurisAffaires, Tunis",
+        desc=f"{e['hero']} {e['lede']} Cabinet d'avocats à Tunis — "
+             "conseil et contentieux."))
+
+
+# ================================================================ TEAM HUB
+
+def build_team():
+    cards = "\n".join(member_card(m) for m in TEAM)
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+      <div>
+        {crumb(("L'équipe", None))}
+        <p class="eyebrow" data-reveal>L'équipe</p>
+        <h1 class="page-hero__title" data-reveal>Quatre avocats, <em>quatre</em> expertises.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Un interlocuteur nommé pour chaque dossier.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="contact.html">Rencontrons-nous {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="expertises.html">Voir les expertises</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="team-grid stagger stagger-4">
+{cards}
+    </div>
+
+    <div class="team-footnote" data-reveal="fade">
+      <p>
+        Nos quatre avocats du Barreau de Tunis interviennent dans différents
+        domaines du droit. Chacun dans son domaine de spécialisation.
+      </p>
+      <a class="link-line" href="contact.html">Rencontrons-nous {ARROW}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-left">
+      <div class="prose on-dark">
+        <p class="eyebrow" data-reveal>Notre engagement</p>
+        <h2 data-reveal>Ce que vous obtenez de chaque avocat.</h2>
+        <p data-reveal style="--reveal-delay:60ms">
+          Indépendance, loyauté, probité, confidentialité&nbsp;: des
+          engagements qui ne s'affichent pas, ils se pratiquent.
+        </p>
+      </div>
+      <div class="sticky-side">
+        <div class="features" style="grid-template-columns:1fr" data-reveal="right">
+          <div class="feature">
+            <span class="feature__num">01</span>
+            <h3 class="feature__title">Indépendance</h3>
+            <p class="feature__text">Sans conflit d'intérêts.</p>
+          </div>
+          <div class="feature">
+            <span class="feature__num">02</span>
+            <h3 class="feature__title">Probité</h3>
+            <p class="feature__text">Conforme aux règles de l'art.</p>
+          </div>
+          <div class="feature">
+            <span class="feature__num">03</span>
+            <h3 class="feature__title">Secret professionnel</h3>
+            <p class="feature__text">Toutes les informations échangées.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Parlons de votre situation.",
+        "Indiquez-nous le sujet&nbsp;: nous vous orientons vers l'avocat "
+        "correspondant.")
+    write("equipe.html", page_h(
+        body, active="equipe.html",
+        title="L'équipe — JurisAffaires Avocats &amp; Conseils, Tunis",
+        desc="Les quatre avocats du Barreau de Tunis&nbsp;: Slim BOUDERBALA, "
+             "Faten GUEMRI, Med Sahbi BOUDERBALA et Taoufik BOUDERBALA. "
+             "Indépendance, loyauté, probité, confidentialité et secret "
+             "professionnel."))
+
+
+# ================================================================ LAWYER PAGES
+
+def build_lawyer(m):
+    facts = "\n".join(f"""
+          <div class="facts__row">
+            <span class="facts__label">{k}</span>
+            <span class="facts__value">{v}</span>
+          </div>""" for k, v in m["facts"])
+
+    tags = "\n".join(f'          <li>{t}</li>' for t in m["tags"])
+
+    pracs = []
+    for ei in m["expertises"]:
+        e = ALL_EXPERTISES[ei]
+        pracs.append((e["title"], e["card"], e["slug"]))
+    rows = "\n".join(f"""
+        <div class="practice__row" data-reveal="fade">
+          <span class="practice__num">{e['num']}</span>
+          <h3 class="practice__title"><a href="{e['slug']}">{t}</a></h3>
+          <span class="practice__tag">Expertise</span>
+          <p class="practice__desc">{d}</p>
+        </div>""" for e, (t, d, _) in zip([ALL_EXPERTISES[i] for i in m["expertises"]], pracs))
+
+    colleagues = "\n".join(f"""
+        <a class="related__item" href="{o['slug']}" data-reveal="fade">
+          <span class="related__num">{o['num']}</span>
+          <span class="related__title">{o['first']} {o['last']}</span>
+          <span class="related__meta">{o['role']}</span>
+        </a>""" for o in TEAM if o["slug"] != m["slug"])
+
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--plate">
+
+      <div class="plate" data-reveal="left">
+        <img src="assets/img/team/{m['img']}" alt="{m['alt']}" width="500" height="500">
+      </div>
+
+      <div>
+        {crumb(("L'équipe", "equipe.html"), (f"Me {m['first']} {m['last']}", None))}
+        <p class="profile-role" data-reveal>{m['role']}</p>
+        <h1 class="profile-name" data-reveal><span>Maître</span>{m['first']} {m['last']}</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:60ms">{m['bio']}</p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms;margin-top:30px">
+          <a class="btn" href="contact.html">Contacter le cabinet {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">{PHONE_MAIN}</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="split split--wide-left">
+      <div>
+        <p class="eyebrow" data-reveal>Fiche du cabinet</p>
+        <h2 class="d2 wipe" data-reveal><span><span>À propos</span></span></h2>
+        <span class="draw-x" data-reveal style="margin:28px 0 28px"></span>
+        <div class="facts" data-reveal="fade" style="border-top-color:var(--line-light)">
+          <div class="facts__row"><span class="facts__label">Statut</span><span class="facts__value">{m['role']}</span></div>
+{facts}
+          <div class="facts__row">
+            <span class="facts__label">Contact</span>
+            <span class="facts__value">
+              <a href="tel:+21671256751">{PHONE_MAIN}</a> · <a href="mailto:{EMAIL}">{EMAIL}</a>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sticky-side">
+        <div class="prose">
+          <blockquote class="pull" data-reveal style="margin-top:0">
+            « Servir — Conseiller — Défendre »
+          </blockquote>
+          <p data-reveal style="--reveal-delay:80ms">
+            Indépendance, loyauté, probité, secret professionnel.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Domaines d'intervention</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Où intervient Maître {m['last'].title()}.</span></span></h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Les expertises traitées.
+      </p>
+    </div>
+    <div class="practice">
+{rows}
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>02</p>
+        <p class="eyebrow" data-reveal>L'équipe</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Les autres profils.</span></span></h2>
+      </div>
+    </div>
+    <div class="related stagger stagger-3">
+{colleagues}
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Un dossier à discusser&nbsp;?",
+        f"Échangez avec Maître {m['first']} {m['last']}.")
+    write(m["slug"], page_h(
+        body, active="equipe.html",
+        title=f"Me {m['first']} {m['last']} — JurisAffaires, Tunis",
+        desc=f"{m['role']} du cabinet JurisAffaires. {m['bio']}"))
+
+
+# ================================================================ PUBLICATIONS
+
+def build_publications():
+    items = "\n".join(f"""
+        <a class="archive__item" href="{p['url']}" target="_blank" rel="noopener" data-reveal="fade">
+          <p class="archive__meta"><span>Droit</span><i></i><span>{p['date']}</span></p>
+          <div>
+            <h2 class="archive__title">{p['title']}</h2>
+            <p class="archive__text">{p['kicker']}</p>
+            <span class="link-line">Lire l'analyse {ARROW}</span>
+          </div>
+        </a>""" for p in PUBLICATIONS)
+
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <span class="page-hero__num" aria-hidden="true">R&amp;A</span>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+      <div>
+        {crumb(("Publications", None))}
+        <p class="eyebrow" data-reveal>Regards &amp; analyses</p>
+        <h1 class="page-hero__title" data-reveal>Le droit écrit avant <em>d'être</em> appliqué.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Des analyses rédigées par les avocats du cabinet, sur les sujets qui
+          touchent l'activité de ses clients.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="contact.html">Discuter d'un sujet {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="https://www.jurisaffaires.tn/la-tribune/" target="_blank" rel="noopener">La Tribune</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Archives</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Nos publications.</span></span></h2>
+      </div>
+      <p class="body-text" data-reveal style="--reveal-delay:100ms">
+        Consultables sur le site en ligne de Juris Affaires.
+      </p>
+    </div>
+
+    <div class="archive">
+{items}
+    </div>
+
+    <div class="notice" data-reveal style="margin-top:34px">
+      <svg width="24" height="24" class="notice__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>
+      </svg>
+      <p><b>Démonstration.</b> Le cabinet ne publie pas d'article depuis 2018.
+      Cette page montre le format de la rubrique, tel qu'il pourrait évoluer.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-right">
+      <div class="prose on-dark">
+        <p class="eyebrow" data-reveal>Pourquoi publier</p>
+        <h2 data-reveal>Le droit comme actif, pas comme contrainte.</h2>
+        <p data-reveal style="--reveal-delay:60ms">
+          L'actualité juridique est un levier de performance, pour la sécurité
+          juridique de vos opérations. Consultez-nous pour en discuter.
+        </p>
+      </div>
+      <div class="sticky-side">
+        <div class="aside-panel" data-reveal="right">
+          <p class="aside-panel__title">Prendre la parole</p>
+          <ul>
+            <li><b>01</b><span>Une question d'interprétation à trancher</span></li>
+            <li><b>02</b><span>Un projet de convention à sécuriser</span></li>
+            <li><b>03</b><span>Un doute sur un risque pénal ou social</span></li>
+          </ul>
+          <a class="btn btn--sm" href="contact.html" style="margin-top:26px;width:100%">Poser la question</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    body += cta_band(
+        "Une question mérite un écrit.",
+        "Écrivez-nous&nbsp;: la réponse est confidentielle.")
+    write("publications.html", page_h(
+        body, active="publications.html",
+        title="Regards &amp; analyses — JurisAffaires Avocats &amp; Conseils, Tunis",
+        desc="Les analyses juridiques du cabinet JurisAffaires&nbsp;: droit des "
+             "affaires, fonds de commerce, franchise, droits fondamentaux et "
+             "constitution."))
+
+
+# ================================================================ CONTACT
+
+def build_contact():
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+      <div>
+        {crumb(("Contact", None))}
+        <p class="eyebrow" data-reveal>Contact</p>
+        <h1 class="page-hero__title" data-reveal>Parlons de votre <em>problématique</em> juridique.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          À taille humaine, à votre écoute.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="tel:+21671256751">Appeler le cabinet {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="mailto:{EMAIL}">Écrire par courriel</a>
+        </div>
+      </div>
+      <div class="aside-panel aside-panel--tight" data-reveal="right" style="--reveal-delay:120ms">
+        <p class="aside-panel__title">Bureau de Tunis</p>
+        <ul>
+          <li><span>{ADDRESS_1}<br>{ADDRESS_2}</span></li>
+          <li><span><a href="tel:+21671256751">{PHONE_MAIN}</a></span></li>
+          <li><span>{HOURS}</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <figure class="editorial editorial--wide" data-reveal="fade" style="margin-bottom:clamp(30px,3.4vw,52px)">
+      <img class="editorial__img" src="assets/img/editorial-tunis.jpg"
+           alt="Détail de mauresque : l'ombre géométrique d'un écran sculpté sur un mur de plâtre blanc."
+           width="1408" height="768" loading="lazy">
+      <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
+    </figure>
+
+    <div class="split split--wide-left">
+      <div>
+        <p class="eyebrow" data-reveal>Écrire au cabinet</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Décrivez votre situation.</span></span></h2>
+        <span class="draw-x" data-reveal style="margin:26px 0 26px"></span>
+        <p class="body-text" data-reveal style="--reveal-delay:60ms;margin-bottom:30px">
+          Décrivez l'opération, l'échéance et l'enjeu&nbsp;: nous revenons vers
+          vous avec une orientation.
+        </p>
+
+        <form class="form" id="contactForm" novalidate data-reveal style="--reveal-delay:100ms">
+          <p class="form__feedback" role="status" aria-live="polite" hidden></p>
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label for="f-nom">Nom et prénom <span>*</span></label>
+              <input id="f-nom" name="nom" type="text" autocomplete="name" placeholder="Votre nom" required>
+            </div>
+            <div class="field">
+              <label for="f-societe">Société</label>
+              <input id="f-societe" name="societe" type="text" autocomplete="organization" placeholder="Nom de la société">
+            </div>
+          </div>
+          <div class="form__row form__row--2">
+            <div class="field">
+              <label for="f-email">Adresse e-mail <span>*</span></label>
+              <input id="f-email" name="email" type="email" autocomplete="email" placeholder="vous@societe.tn" required>
+            </div>
+            <div class="field">
+              <label for="f-tel">Téléphone</label>
+              <input id="f-tel" name="tel" type="tel" autocomplete="tel" placeholder="+216">
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-sujet">Sujet du dossier <span>*</span></label>
+            <select id="f-sujet" name="sujet" required>
+              <option value="">Sélectionnez une expertise</option>
+              <option>Droit des affaires</option>
+              <option>Banque, finance &amp; assurances</option>
+              <option>Immobilier, social &amp; maritime</option>
+              <option>Contentieux, pénal &amp; libertés</option>
+              <option>Droit du sport</option>
+              <option>Autre sujet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-message">Votre message <span>*</span></label>
+            <textarea id="f-message" name="message" placeholder="Décrivez brièvement votre cas." required></textarea>
+          </div>
+          <div class="form__foot">
+            <button class="btn" type="submit">Envoyer la demande {ARROW}</button>
+            <p class="form__legal">
+              Vos informations restent couvertes par le secret professionnel
+              et ne sont transmises à aucun tiers.
+            </p>
+          </div>
+        </form>
+
+        <div class="notice" data-reveal style="margin-top:26px">
+          <svg width="24" height="24" class="notice__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>
+          </svg>
+          <p><b>Démonstration — concept.</b> Aucun back-end&nbsp;: la
+          soumission ouvre votre messagerie pré-remplie vers {EMAIL}.</p>
+        </div>
+      </div>
+
+      <div class="sticky-side">
+        <div data-reveal="right">
+          <div class="map-panel">
+            <iframe title="Plan d'accès — 45, rue Ali Darghouth, Tunis"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=10.1734%2C36.7946%2C10.1906%2C36.8044&amp;layer=mapnik&amp;marker=36.7995%2C10.1820"
+                    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <p class="map-panel__fallback">
+              <strong>{ADDRESS_1}<br>{ADDRESS_2}</strong>
+              <span>Centre-ville de Tunis, à proximité de la Avenue de la Liberté.</span>
+            </p>
+          </div>
+
+          <div class="facts" style="margin-top:32px">
+            <div class="facts__row"><span class="facts__label">Adresse</span><span class="facts__value">{ADDRESS_1}<br>{ADDRESS_2}</span></div>
+            <div class="facts__row"><span class="facts__label">Téléphone</span><span class="facts__value"><a href="tel:+21671256751">{PHONE_MAIN}</a></span></div>
+            <div class="facts__row"><span class="facts__label">Télécopieur</span><span class="facts__value">{FAX}</span></div>
+            <div class="facts__row facts__row--stack"><span class="facts__label">Courriel</span><span class="facts__value"><a href="mailto:{EMAIL}">{EMAIL}</a></span></div>
+            <div class="facts__row"><span class="facts__label">Horaires</span><span class="facts__value">{HOURS}</span></div>
+          </div>
+
+          <a class="btn btn--ghost" style="margin-top:26px;width:100%" target="_blank" rel="noopener"
+             href="https://www.google.com/maps/search/?api=1&amp;query=45+Rue+Ali+Darghouth+1001+Tunis">
+            Ouvrir l'itinéraire {ARROW}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>01</p>
+        <p class="eyebrow" data-reveal>Avant de nous écrire</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Trois réponses fréquentes.</span></span></h2>
+      </div>
+    </div>
+    <div class="features stagger stagger-3">
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">01</span>
+        <h3 class="feature__title">Le premier échange est-il confidentiel&nbsp;?</h3>
+        <p class="feature__text">
+          Oui, dès le premier courriel ou le premier appel.
+        </p>
+      </div>
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">02</span>
+        <h3 class="feature__title">Quel avocat va traiter mon dossier&nbsp;?</h3>
+        <p class="feature__text">
+          L'avocat dont la spécialisation correspond au sujet.
+        </p>
+      </div>
+      <div class="feature" data-reveal="fade">
+        <span class="feature__num">03</span>
+        <h3 class="feature__title">Intervenez-vous hors de Tunis&nbsp;?</h3>
+        <p class="feature__text">
+          Centre-ville de Tunis, avec déplacements selon le dossier.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="section-index" data-reveal>02</p>
+        <p class="eyebrow" data-reveal>Avant tout</p>
+        <h2 class="d2 wipe" data-reveal><span><span>Identifiez votre sujet.</span></span></h2>
+      </div>
+    </div>
+    <div class="related stagger stagger-4">
+{related_cards([0, 1, 2, 3, 4][:4])}
+    </div>
+  </div>
+</section>
+"""
+    write("contact.html", page_h(
+        body, active="contact.html",
+        title="Contact — JurisAffaires Avocats &amp; Conseils, Tunis",
+        desc=f"45, rue Ali Darghouth, 1001 Tunis. {PHONE_MAIN}. "
+             f"Courriel&nbsp;: {EMAIL}. Du lundi au vendredi, 8h00 à 18h30."))
+
+
+# ================================================================ PAGES LÉGALES
+# Ces deux pages n'avaient jamais été reprises dans le nouveau gabarit :
+# elles partageaient l'ancien header, un pied de page réduit et pas de hero.
+# Elles sont désormais bâties avec le même chrome que les 15 autres pages.
+
+def legal_page(filename, eyebrow, title_txt, lede_txt, blocks, active=""):
+    body = f"""
+<section class="page-hero page-hero--legal grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--solo">
+
+      <div>
+        {crumb((eyebrow, None))}
+        <p class="eyebrow" data-reveal>{eyebrow}</p>
+        <h1 class="page-hero__title" data-reveal>{title_txt}</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          {lede_txt}
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="split split--wide-left">
+      <div class="legal-body" data-reveal="fade">
+{blocks}
+      </div>
+
+      <div class="sticky-side">
+        <div class="aside-panel aside-panel--tight on-dark" data-reveal="right" style="background:var(--ink)">
+          <p class="aside-panel__title">Le cabinet</p>
+          <ul>
+            <li><span>{ADDRESS_1}<br>{ADDRESS_2}</span></li>
+            <li><span><a href="tel:+21671256751">{PHONE_MAIN}</a></span></li>
+            <li><span><a href="mailto:{EMAIL}">{EMAIL}</a></span></li>
+            <li><span>{HOURS}</span></li>
+          </ul>
+          <a class="btn btn--sm" href="contact.html" style="margin-top:26px;width:100%">Prendre contact {ARROW}</a>
+        </div>
+
+        <nav class="legal-nav" data-reveal="right" style="--reveal-delay:120ms" aria-label="Autres pages">
+          <a href="mentions-legales.html" aria-current="page">Mentions légales</a>
+          <a href="politique-de-confidentialite.html">Politique de confidentialité</a>
+          <a href="index.html">Retour à l'accueil</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    write(filename, page_h(body, active=active,
+                           title=f"{title_txt} — JurisAffaires Avocats &amp; Conseils, Tunis",
+                           desc=lede_txt))
+
+
+def build_mentions():
+    blocks = """
+        <h2>Éditeur du site</h2>
+        <p>
+          <strong>Juris Affaires Avocats &amp; Conseils</strong><br>
+          Société professionnelle d'avocats inscrite au Barreau de Tunis<br>
+          45, rue Ali Darghouth — 1001 Tunis, Tunisie<br>
+          Téléphone : <a href="tel:+21671256751">(+216) 71 256 751</a><br>
+          Télécopieur : (+216) 71 256 737<br>
+          Courriel : <a href="mailto:avocats-conseils@jurisaffaires.net">avocats-conseils@jurisaffaires.net</a>
+        </p>
+
+        <h2>Directeur de la publication</h2>
+        <p>Le gérant de Juris Affaires Avocats &amp; Conseils.</p>
+
+        <h2>Hébergement</h2>
+        <p>
+          Le site est hébergé sur une infrastructure distante à laquelle le
+          cabinet n'est pas partie prenante. Les coordonnées complètes de
+          l'hébergeur sont communiquées sur simple demande écrite adressée au
+          cabinet.
+        </p>
+
+        <h2>Propriété intellectuelle</h2>
+        <p>
+          L'ensemble des contenus présents sur ce site — textes, photographies,
+          logos et éléments graphiques — est protégé par le droit d'auteur.
+          Toute reproduction, même partielle, est interdite sans autorisation
+          écrite préalable du cabinet.
+        </p>
+
+        <h2>Les logos et références clients</h2>
+        <p>
+          Les marques et logos de tiers reproduits sur ce site demeurent la
+          propriété de leurs titulaires respectifs et sont utilisés à des fins
+          d'illustration.
+        </p>
+
+        <h2>Responsabilité</h2>
+        <p>
+          Les contenus publiés sur ce site ont une vocation documentaire et
+          informative. Ils ne constituent pas une consultation juridique
+          personnalisée et ne peuvent se substituer à l'analyse d'un avocat sur
+          une situation déterminée.
+        </p>
+
+        <h2>Droit applicable</h2>
+        <p>Les présentes mentions légales sont soumises au droit tunisien.</p>
+    """
+    legal_page("mentions-legales.html", "Informations légales",
+               "Mentions légales.",
+               "Éditeur, hébergement, propriété intellectuelle et droit applicable.",
+               blocks, active="mentions-legales.html")
+
+
+def build_privacy():
+    blocks = """
+        <h2>Principe général</h2>
+        <p>
+          Le cabinet collecte uniquement les informations que vous lui transmettez
+          volontairement, et uniquement pour traiter votre demande. Aucune donnée
+          n'est vendue, louée ou cédée à un tiers.
+        </p>
+
+        <h2>Données collectées</h2>
+        <p>Via le formulaire de contact du site&nbsp;:</p>
+        <ul>
+          <li>Nom et prénom</li>
+          <li>Société</li>
+          <li>Adresse électronique</li>
+          <li>Téléphone (facultatif)</li>
+          <li>Sujet du dossier et message</li>
+        </ul>
+
+        <h2>Finalité et conservation</h2>
+        <p>
+          Ces informations servent uniquement à répondre à votre demande et à
+          assurer la continuité des échanges. Elles sont conservées le temps
+          nécessaire au traitement, puis supprimées, sauf obligation légale de
+          conservation.
+        </p>
+
+        <h2>Secret professionnel</h2>
+        <p>
+          L'ensemble des échanges avec le cabinet est couvert par le secret
+          professionnel, y compris lorsqu'il s'agit d'un premier courriel ou d'un
+          premier appel.
+        </p>
+
+        <h2>Témoins de connexion</h2>
+        <p>
+          Le site ne dépose aucun témoin de connexion à des fins publicitaires. Seuls
+          des fichiers strictement techniques peuvent être utilisés afin d'afficher
+          correctement les pages.
+        </p>
+
+        <h2>Vos droits</h2>
+        <p>
+          Vous pouvez demander l'accès, la rectification ou la suppression de vos
+          données en écrivant au cabinet. Le secret professionnel peut faire
+          obstacle à la communication d'éléments issus des échanges professionnels&nbsp;;
+          le cabinet vous en indiquera les limites.
+        </p>
+
+        <h2>Cookies et mesure d'audience</h2>
+        <p>
+          Cette maquette de démonstration ne comporte ni traçage publicitaire, ni
+          mesure d'audience tierce.
+        </p>
+    """
+    legal_page("politique-de-confidentialite.html", "Données personnelles",
+               "Politique de confidentialité.",
+               "Quelles données le cabinet collecte, pourquoi, et combien de temps.",
+               blocks, active="politique-de-confidentialite.html")
+
+
+# ================================================================ DOMAINES
+# Les 22 entrées réelles de PRACTICES (titre + description + nature) sont
+# aujourd'hui de simples lignes de liste. Chacune devient une page à part
+# entière, sans aucun texte juridique inventé : on ne réutilise que ce que
+# le cabinet publie déjà.
+
+def domain_slug(title):
+    return "domaine-" + slugify(title) + ".html"
+
+
+def build_domains():
+    for idx in sorted(PRACTICES):
+        pole = ALL_EXPERTISES[idx]
+        practices = PRACTICES[idx]
+        lawyers = [m for j, m in enumerate(TEAM) if idx in m["expertises"]]
+
+        for title, desc, tag in practices:
+            slug = domain_slug(title)
+            brothers = [t for (t, _, _) in practices if t != title]
+
+            chips = "\n".join(
+                f'          <li><a class="pill" href="{domain_slug(t)}">{t}</a></li>'
+                for t in brothers)
+
+            team = "\n".join(f"""
+                <a class="related__item" href="{m['slug']}" data-reveal="fade">
+                  <span class="related__num">Me</span>
+                  <span class="related__title">{m['first']} {m['last']}</span>
+                  <span class="related__meta">{m['role']}</span>
+                </a>""" for m in lawyers) or f"""
+                <a class="related__item" href="equipe.html" data-reveal="fade">
+                  <span class="related__num">\u2014</span>
+                  <span class="related__title">L'équipe du cabinet</span>
+                  <span class="related__meta">Quatre avocats du Barreau de Tunis</span>
+                </a>"""
+
+            others = [e for j, e in enumerate(ALL_EXPERTISES) if j != idx]
+            related = related_cards([ALL_EXPERTISES.index(e) for e in others])
+
+            plain = title.replace("&amp;", "&")
+
+            body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--solo">
+
+      <div>
+        {crumb(("Expertises", "expertises.html"), (pole["title"].replace("&amp;", "&"), pole["slug"]), (plain, None))}
+        <p class="eyebrow" data-reveal>{tag}</p>
+        <h1 class="page-hero__title" data-reveal>{title}</h1>
+        <p class="hero-lede-strong" data-reveal style="--reveal-delay:60ms;font-family:var(--font-display);font-size:clamp(1.25rem,2.1vw,1.7rem);font-weight:300;line-height:1.3;color:var(--slate);max-width:22ch;margin-bottom:22px">{desc}</p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="contact.html">Décrire votre situation {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="{pole['slug']}">Le pôle {pole['title'].replace('&amp;', '&')}</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="split split--wide-left">
+      <div>
+        <p class="eyebrow" data-reveal>Le cabinet</p>
+        <h2 data-reveal>{pole['title'].replace('&amp;', '&amp;')}</h2>
+        <p class="body-text" data-reveal style="--reveal-delay:60ms">{pole['lede']}</p>
+      </div>
+      <div class="sticky-side">
+        <ul class="pill-list" data-reveal="fade">
+{chips}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper-2">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow" data-reveal>Qui traiter votre dossier</span>
+        <h2 class="d2 wipe" data-reveal><span><span>Les avocats de ce pôle.</span></span></h2>
+      </div>
+      <p data-reveal="fade">Un interlocuteur nommé du premier échange aux actes de conclusion.</p>
+    </div>
+    <div class="related related--cards">
+{team}
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow" data-reveal>Pour aller plus loin</span>
+        <h2 class="d2 wipe" data-reveal><span><span>Les autres pôles.</span></span></h2>
+      </div>
+      <p data-reveal="fade"><a class="link-line" href="expertises.html">Toutes les expertises {ARROW}</a></p>
+    </div>
+    <div class="related related--cards">
+{related}
+    </div>
+  </div>
+</section>
+
+{cta_band("Parlons de votre dossier.",
+           "Décrivez l'opération et l'échéance : le cabinet vous répond avec une orientation.",
+           primary="Prendre contact", primary_href="contact.html",
+           secondary="Appeler le cabinet", secondary_href="tel:+21671256751")}
+"""
+            write(slug, page_h(body,
+                title=f"{plain} — Juris Affaires Avocats & Conseils",
+                desc=desc,
+                active="expertises.html"))
+
+        print(f"  + {len(practices)} pages domaine pour « {pole['title']} »")
+
+
+# ================================================================ 404
+
+def build_notfound():
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--solo">
+      <div>
+        <p class="eyebrow" data-reveal>Erreur 404</p>
+        <h1 class="page-hero__title" data-reveal>Cette page n'existe pas.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Le lien est peut-être ancien. Voici les pages principales du cabinet.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="index.html">Retour à l'accueil {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="contact.html">Nous écrire</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow" data-reveal>Repères</span>
+        <h2 class="d2 wipe" data-reveal><span><span>Où aller.</span></span></h2>
+      </div>
+      <p data-reveal="fade">Le cabinet couvre cinq pôles et vingt-deux domaines d'intervention.</p>
+    </div>
+    {related_cards([0, 1, 2, 3, 4])}
+  </div>
+</section>
+"""
+    write("404.html", page_h(body,
+        title="Page introuvable — Juris Affaires Avocats & Conseils",
+        desc="La page demandée est introuvable.",
+        active=""))
+
+# ================================================================ REFERENCES
+
+def build_references():
+    banks = CLIENTS[:3]
+    industry = CLIENTS[3:8]
+    media = CLIENTS[8:11]
+    institution = CLIENTS[11:]
+
+    def block(title, note, items):
+        cells = "\n".join(
+            f'          <div class="logo-cell"><img src="assets/img/clients/{f}" alt="{a}" loading="lazy"></div>'
+            for f, a in items)
+        return f"""
+    <div class="ref-block" data-reveal="fade">
+      <div class="ref-block__head">
+        <h2>{title}</h2>
+        <p>{note}</p>
+      </div>
+      <div class="logo-grid logo-grid--light">
+{cells}
+      </div>
+    </div>"""
+
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--solo">
+      <div>
+        {{crumb(("Références", None))}}
+        <p class="eyebrow" data-reveal>Références</p>
+        <h1 class="page-hero__title" data-reveal>Ils nous font confiance.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Les marques que le cabinet cite aujourd'hui. Établissements financiers,
+          groupes industriels, médias et institutions.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow" data-reveal>Références</span>
+        <h2 class="d2 wipe" data-reveal><span><span>Qui fait confiance au cabinet.</span></span></h2>
+      </div>
+      <p data-reveal="fade">Taxonomie descriptive. Aucune mission n'est revendiquée.</p>
+    </div>
+{block("Banques &amp; établissements financiers",
+       "Accompagnement juridique et contentieux bancaire.", banks)}
+{block("Groupes industriels &amp; services", "Structures, opérations et litiges.", industry)}
+{block("Médias &amp; communication", "Droit des affaires et propriété intellectuelle.", media)}
+{block("Institutions", "Mandats institutionnels et Pharos civiques.", institution)}
+  </div>
+</section>
+
+<section class="section section--ink grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow" data-reveal>Références communiquées</span>
+        <h2 class="d2 wipe" data-reveal><span><span>Logos affichés par le cabinet sur son site actuel.</span></span></h2>
+      </div>
+      <p data-reveal="fade">Taxonomie descriptive uniquement — aucune mission n'est revendiquée.</p>
+    </div>
+    {logo_grid()}
+    <p class="archive__text" style="margin-top:26px" data-reveal="fade">
+      Ces références sont celles publications par le cabinet. Elles ne constituent
+      pas une recommandation et n'établissent aucun lien contractuel.
+    </p>
+  </div>
+</section>
+
+{cta_band("Un dossier à traiter ?",
+           "Établissements financiers, groupes industriels et institutions : décrivez le contexte, le cabinet vous répond.",
+           primary="Prendre contact", primary_href="contact.html",
+           secondary="Appeler le cabinet", secondary_href="tel:+21671256751")}
+"""
+    write("references.html", page_h(body,
+        title="Références — Juris Affaires Avocats &amp; Conseils",
+        desc="Les références communiquées par le cabinet : banques, groupes industriels, médias et institutions.",
+        active="references.html"))
+
+
+# ================================================================ BUILD ALL
+
+def main():
+    os.chdir(ROOT)
+    print("Building static pages...")
+    build_home()
+    build_cabinet()
+    build_expertise_hub()
+    for e in ALL_EXPERTISES:
+        build_expertise(e)
+    build_team()
+    for m in TEAM:
+        build_lawyer(m)
+    build_publications()
+    build_contact()
+    build_mentions()
+    build_privacy()
+    build_domains()
+    build_references()
+    build_notfound()
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()
