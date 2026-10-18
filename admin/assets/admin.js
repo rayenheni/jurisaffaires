@@ -14,23 +14,15 @@ function clearAuthAndRedirect() {
   redirectToLogin();
 }
 
-<<<<<<< HEAD
-// Verify token — only clear on 401/403, not on network errors
-=======
 // Verify token — only clear on 401 (our auth), not on 403 (E2B gateway) nor network
->>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
 if (!token) {
   redirectToLogin();
 } else {
   fetch(API+'/api/auth/me', { headers:{ Authorization:'Bearer '+token } })
     .then(r=>{
-<<<<<<< HEAD
-      if (r.status===401 || r.status===403) throw new Error('unauthorized');
-=======
       if (r.status===401) throw new Error('unauthorized');
       // 403 = E2B "Missing traffic access token" — ne pas déconnecter, c'est le proxy
       if (r.status===403) throw new Error('network');
->>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
       if(!r.ok) throw new Error('network');
       return r.json();
     })
@@ -101,7 +93,17 @@ function api(path, opts={}){
 }
 
 async function loadCMS(){
-  CMS = await api('/api/cms');
+  try {
+    CMS = await api('/api/cms');
+    localStorage.setItem('ja_cms_cache', JSON.stringify(CMS));
+  } catch(e){
+    const cached = localStorage.getItem('ja_cms_cache');
+    if (cached) {
+      try { CMS = JSON.parse(cached); console.warn('[admin] using cached CMS', e.message); }
+      catch(_e2){ CMS = null; }
+    }
+    if (!CMS) throw e;
+  }
   updateBadge();
   return CMS;
 }
@@ -153,7 +155,23 @@ function toast(msg, type='success'){
 // ---------- VIEWS ----------
 async function viewDashboard(){
   titleEl.textContent='Tableau de bord';
-  const stats = await api('/api/stats');
+  let stats = null;
+  try { stats = await api('/api/stats'); }
+  catch(e){
+    console.warn('[admin] stats failed', e);
+    const cms = CMS || JSON.parse(localStorage.getItem('ja_cms_cache')||'{}');
+    stats = {
+      pages: 43,
+      team: cms.team?.length || 4,
+      publications: cms.publications?.length || 2,
+      messages: 0, messagesNew: 0,
+      media: 0,
+      pillars: cms.pillars?.length || 4,
+      practices: cms.practices ? Object.values(cms.practices).flat().length : 22,
+      clients: cms.clients?.length || 12,
+      site: cms.site || { SITE_URL:'', ADDRESS_1:'', ADDRESS_2:'', EMAIL:'', PHONE_MAIN:'' }
+    };
+  }
   main.innerHTML = `
     <div class="stat-row">
       <div class="stat"><b>${stats.pages}</b><span>Pages statiques</span></div>

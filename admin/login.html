@@ -38,11 +38,7 @@
 const existingToken = localStorage.getItem('ja_token');
 if (existingToken) {
   fetch('/api/auth/me', { headers:{ Authorization:'Bearer '+existingToken } })
-<<<<<<< HEAD
-    .then(r=>{ if(r.ok) location.href='index.html'; else if(r.status===401||r.status===403){ localStorage.removeItem('ja_token'); localStorage.removeItem('ja_user'); } })
-=======
     .then(r=>{ if(r.ok) location.href='index.html'; else if(r.status===401){ localStorage.removeItem('ja_token'); localStorage.removeItem('ja_user'); } })
->>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
     .catch(()=>{}); // ne pas bloquer l'affichage du formulaire
 }
 const form = document.getElementById('loginForm');
@@ -59,15 +55,11 @@ form.addEventListener('submit', async (e)=>{
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ email: document.getElementById('email').value.trim(), password: document.getElementById('password').value })
     });
-<<<<<<< HEAD
-    const j = await r.json().catch(()=>({}));
-=======
     const text = await r.text();
     let j={}; try{ j=JSON.parse(text); }catch(e){}
     if (text.includes('Missing traffic access token') || text.includes('e2b-traffic-access-token')) {
-      throw new Error('Accès bloqué par E2B — ouvre l’admin via le bouton “Live Preview” d’Arena, pas via l’URL directe e2b.app');
+      throw new Error('Accès bloqué par E2B — ouvre l’admin via le bouton “Live Preview” d’Arena');
     }
->>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
     if (!r.ok) throw new Error(j.error || 'Identifiants invalides ('+r.status+')');
     if (!j.token) throw new Error('Réponse serveur invalide');
     localStorage.setItem('ja_token', j.token);
