@@ -1,0 +1,678 @@
+{
+  "site": {
+    "NAME": "JurisAffaires",
+    "LEGAL_NAME": "Juris Affaires Avocats &amp; Conseils",
+    "SITE_URL": "https://www.jurisaffaires.tn/",
+    "ADDRESS_1": "45, rue Ali Darghouth",
+    "ADDRESS_2": "1001 Tunis — Tunisie",
+    "PHONE_MAIN": "(+216) 71 256 751",
+    "PHONE_2": "(+216) 71 256 752",
+    "PHONE_3": "(+216) 71 256 738",
+    "FAX": "(+216) 71 256 737",
+    "EMAIL": "avocats-conseils@jurisaffaires.net",
+    "HOURS": "Lundi au vendredi — 8h00 à 18h30",
+    "MAP_URL": "https://www.google.com/maps/search/?api=1&amp;query=45+Rue+Ali+Darghouth+1001+Tunis+Tunisie"
+  },
+  "nav": [
+    {
+      "href": "le-cabinet.html",
+      "label": "Le Cabinet"
+    },
+    {
+      "href": "expertises.html",
+      "label": "Expertises"
+    },
+    {
+      "href": "equipe.html",
+      "label": "Équipe"
+    },
+    {
+      "href": "publications.html",
+      "label": "Publications"
+    },
+    {
+      "href": "references.html",
+      "label": "Références"
+    },
+    {
+      "href": "contact.html",
+      "label": "Contact"
+    }
+  ],
+  "expertise_subnav": [
+    {
+      "href": "expertises.html",
+      "label": "Vue d'ensemble"
+    },
+    {
+      "href": "expertise-droit-des-affaires.html",
+      "label": "Droit des affaires"
+    },
+    {
+      "href": "expertise-banque-finance-assurances.html",
+      "label": "Banque &amp; assurances"
+    },
+    {
+      "href": "expertise-immobilier-social-maritime.html",
+      "label": "Immobilier &amp; social"
+    },
+    {
+      "href": "expertise-contentieux-penal-libertes.html",
+      "label": "Contentieux &amp; libertés"
+    },
+    {
+      "href": "expertise-droit-du-sport.html",
+      "label": "Droit du sport"
+    }
+  ],
+  "pillars": [
+    {
+      "num": "01",
+      "slug": "expertise-droit-des-affaires.html",
+      "title": "Droit des affaires",
+      "hero": "Constituer, financer, céder, restructurer.",
+      "lede": "De la start-up à la levée de fonds, chaque étape accompagnée.",
+      "card": "Sociétés, opérations, restructuration, droit commercial.",
+      "items": [
+        "Droit des sociétés",
+        "Opérations de cession d'entreprise",
+        "Restructuration &amp; levée de fonds",
+        "Arbitrage et contentieux des sociétés commerciales"
+      ]
+    },
+    {
+      "num": "02",
+      "slug": "expertise-banque-finance-assurances.html",
+      "title": "Banque, finance &amp; assurances",
+      "hero": "Sécuriser le financement, couvrir le risque.",
+      "lede": "Du financement à la saison des sinistres.",
+      "card": "Droit bancaire, financement, fiscalité, assurances.",
+      "items": [
+        "Droit bancaire et financier",
+        "Financement, conformité &amp; bancassurance",
+        "Droit fiscal",
+        "Droit des assurances"
+      ]
+    },
+    {
+      "num": "03",
+      "slug": "expertise-immobilier-social-maritime.html",
+      "title": "Immobilier, social &amp; maritime",
+      "hero": "Le patrimoine, le travail, le transport maritime.",
+      "lede": "Trois sujets où le conseil doit précéder le différend.",
+      "card": "Transactions, litiges immobiliers, droit social, droit maritime.",
+      "items": [
+        "Transactions &amp; ventes aux enchères publiques",
+        "Fiscalité immobilière",
+        "Droit social et prud'hommes",
+        "Droit maritime"
+      ]
+    },
+    {
+      "num": "04",
+      "slug": "expertise-contentieux-penal-libertes.html",
+      "title": "Contentieux, pénal &amp; libertés",
+      "hero": "Défendre les intérêts, protéger les personnes.",
+      "lede": "Litiges, pénal des affaires, affaires d'opinion, droits de l'Homme.",
+      "card": "Contentieux, droit pénal des affaires, droits de l'Homme.",
+      "items": [
+        "Contentieux commercial et civil",
+        "Droit pénal général et spécial",
+        "Affaires politiques et d'opinion",
+        "Droits de l'Homme"
+      ]
+    }
+  ],
+  "sport": {
+    "num": "05",
+    "slug": "expertise-droit-du-sport.html",
+    "title": "Droit du sport",
+    "hero": "Une spécialisation rare en Tunisie.",
+    "lede": "Assister et représenter ses clients dans les litiges sportifs.",
+    "card": "Litiges sportifs, responsabilité, manquements graves.",
+    "items": [
+      "Règlement des litiges sportifs",
+      "Responsabilité et manquements graves",
+      "Assistance et représentation",
+      "Conseil aux acteurs du sport"
+    ]
+  },
+  "team": [
+    {
+      "slug": "avocat-slim-bouderbala.html",
+      "num": "01",
+      "first": "Slim",
+      "last": "BOUDERBALA",
+      "role": "Avocat Associé · Gérant",
+      "img": "slim-bouderbala.jpg",
+      "alt": "Portrait de Maître Slim Bouderbala, avocat associé et gérant du cabinet.",
+      "bio": "Co-fondateur et gérant de Juris Affaires Avocats &amp; Conseils. Avocat spécialisé en droit des affaires, en droit immobilier et en droit du sport, expert des opérations de restructuration, de cession et de levée de fonds.",
+      "facts": [
+        [
+          "Spécialités",
+          "Droit des affaires · Droit immobilier · Droit du sport"
+        ],
+        [
+          "Expertise",
+          "Restructuration, cession et levée de fonds"
+        ],
+        [
+          "Fonction",
+          "Co-fondateur et gérant du cabinet"
+        ]
+      ],
+      "tags": [
+        "Droit des affaires",
+        "Droit du sport",
+        "Immobilier",
+        "Restructuration"
+      ],
+      "expertises": [
+        0,
+        4,
+        2
+      ]
+    },
+    {
+      "slug": "avocate-faten-guemri.html",
+      "num": "02",
+      "first": "Faten",
+      "last": "GUEMRI",
+      "role": "Avocate Associée · Co-gérante",
+      "img": "faten-guemri.jpg",
+      "alt": "Portrait de Maître Faten Guemri, avocate associée du cabinet.",
+      "bio": "Co-fondatrice et co-gérante du cabinet Juris Affaires Avocats &amp; Conseils. Avocate associée, experte juriste dans les opérations de cession d'entreprise, spécialisée en arbitrage et en contentieux des sociétés commerciales.",
+      "facts": [
+        [
+          "Spécialités",
+          "Cession d'entreprise · Arbitrage · Sociétés commerciales"
+        ],
+        [
+          "Expertise",
+          "Contentieux des sociétés commerciales"
+        ],
+        [
+          "Fonction",
+          "Co-fondatrice et co-gérante du cabinet"
+        ]
+      ],
+      "tags": [
+        "Cession d'entreprise",
+        "Arbitrage",
+        "Sociétés commerciales",
+        "Contentieux"
+      ],
+      "expertises": [
+        0,
+        3
+      ]
+    },
+    {
+      "slug": "avocat-sahbi-bouderbala.html",
+      "num": "03",
+      "first": "Med Sahbi",
+      "last": "BOUDERBALA",
+      "role": "Associé Senior",
+      "img": "sahbi-bouderbala.jpg",
+      "alt": "Portrait de Maître Med Sahbi Bouderbala, avocat senior associé.",
+      "bio": "Avocat senior spécialisé en droit maritime, droit des assurances, droit bancaire, droit commercial et droit fiscal. Président de la Ligue des Droits de l'Homme de Nabeul et membre du Parlement Tunisien.",
+      "facts": [
+        [
+          "Spécialités",
+          "Droit maritime · Assurances · Banque · Fiscal"
+        ],
+        [
+          "Distinctions",
+          "Membre du Parlement Tunisien — Président de la Ligue des Droits de l'Homme de Nabeul"
+        ],
+        [
+          "Fonction",
+          "Associé senior du cabinet"
+        ]
+      ],
+      "tags": [
+        "Droit maritime",
+        "Assurances",
+        "Droit bancaire",
+        "Droits de l'Homme"
+      ],
+      "expertises": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "slug": "avocat-taoufik-bouderbala.html",
+      "num": "04",
+      "first": "Taoufik",
+      "last": "BOUDERBALA",
+      "role": "Associé Senior",
+      "img": "taoufik-bouderbala.jpg",
+      "alt": "Portrait de Maître Taoufik Bouderbala, avocat senior associé.",
+      "bio": "Avocat senior spécialisé en droit pénal général et spécial, affaires politiques et d'opinion, droit maritime, droit des assurances, droit bancaire, commercial et fiscal. Président honorifique de la LTDH.",
+      "facts": [
+        [
+          "Spécialités",
+          "Droit pénal · Affaires d'opinion · Maritime · Banque"
+        ],
+        [
+          "Distinctions",
+          "Président honorifique de la Ligue Tunisienne des Droits de l'Homme"
+        ],
+        [
+          "Fonction",
+          "Associé senior du cabinet"
+        ]
+      ],
+      "tags": [
+        "Droit pénal",
+        "Droit bancaire",
+        "Affaires d'opinion",
+        "Droit maritime"
+      ],
+      "expertises": [
+        3,
+        1,
+        2
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "file": "bft-stb.png",
+      "alt": "BFT — STB Bank"
+    },
+    {
+      "file": "qnb.png",
+      "alt": "QNB Bank"
+    },
+    {
+      "file": "tsb.png",
+      "alt": "Tunisian Saudi Bank"
+    },
+    {
+      "file": "conect.png",
+      "alt": "CONECT — Confédération des Entreprises Citoyennes de Tunisie"
+    },
+    {
+      "file": "seabel.png",
+      "alt": "Seabel Hotels — Tunisie Groupe"
+    },
+    {
+      "file": "palm-beach.png",
+      "alt": "Palm Beach Hotels — Tunisie"
+    },
+    {
+      "file": "villa-didon.png",
+      "alt": "Villa Didon Carthage"
+    },
+    {
+      "file": "finzi.png",
+      "alt": "Finzi — Usines Graphiques"
+    },
+    {
+      "file": "systra-studi.png",
+      "alt": "Groupe STUDI"
+    },
+    {
+      "file": "gamma-plast.png",
+      "alt": "Gamma Plast"
+    },
+    {
+      "file": "mcm.png",
+      "alt": "MCM — Marketing Communication Media"
+    },
+    {
+      "file": "croissant-rouge.png",
+      "alt": "Le Croissant-Rouge Tunisien"
+    }
+  ],
+  "publications": [
+    {
+      "slug": "publication-cession-du-fonds-de-commerce-exploite-en-franchise.html",
+      "title": "La cession du fonds de commerce exploité en Franchise",
+      "short_title": "Cession de fonds en Franchise",
+      "date": "24 mai 2018",
+      "author": "Me Slim Bouderbala",
+      "author_slug": "avocat-slim-bouderbala.html",
+      "author_role": "Avocat Associé · Gérant du cabinet",
+      "author_img": "slim-bouderbala.jpg",
+      "category": "Droit des affaires & Distribution",
+      "read_time": "6 min de lecture",
+      "kicker": "Fonds de commerce, franchise et transmission d'entreprise.",
+      "text": "Le fonds de commerce exploité en franchise présente des particularités propres, tant dans sa valeur que dans les modalités de sa cession.",
+      "original_url": "https://www.jurisaffaires.tn/droit/cession-du-fonds-de-commerce-exploite-en-franchise/",
+      "takeaways": [
+        "Autonomie juridique du franchisé : titulaire d'une clientèle locale et d'un fonds propre distinct de l'enseigne.",
+        "Clause d'agrément et droit de préemption : mécanismes contractuels déterminants du franchiseur à purger impérativement.",
+        "Droit au bail commercial : transfert de plein droit protégé par le Code de commerce tunisien.",
+        "Séquestre et oppositions : sécurisation impérative des fonds jusqu'à expiration des délais légaux du RNE."
+      ],
+      "sections": [
+        [
+          "I. L'autonomie du fonds franchisé et la dualité de clientèle",
+          [
+            "L'exploitation d'une franchise pose une question fondamentale en droit commercial et en matière d'évaluation d'entreprise : à qui appartient véritablement la clientèle attachée au point de vente ?",
+            "La jurisprudence tunisienne et comparée consacre aujourd'hui avec constance l'indépendance juridique du franchisé. Bien que soumis au respect des normes et du concept développés par le franchiseur, le commerçant franchisé supporte l'intégralité des risques financiers et des investissements d'exploitation.",
+            "Dès lors, si la notoriété de l'enseigne et les signes distinctifs demeurent la propriété exclusive de la tête de réseau, la clientèle de proximité, fidélisée par les diligences propres de l'exploitant local, constitue l'élément constitutif central de son fonds de commerce.",
+            "Cette distinction est capitale : lors de la négociation du prix de cession, l'expert évaluateur et le conseil juridique doivent dissocier la survaleur issue de la marque de la rentabilité intrinsèque générée par l'exploitant."
+          ]
+        ],
+        [
+          "II. Les clauses contractuelles d'agrément et de préemption",
+          [
+            "La spécificité majeure de la cession d'un fonds exploité sous franchise réside dans la force de l'<em>intuitu personae</em> qui caractérise le contrat de franchise initial.",
+            "Pratiquement tous les contrats de distribution et d'affiliation contiennent une <strong>clause d'agrément</strong>. En vertu de celle-ci, la cession du fonds au profit d'un acquéreur tiers est subordonnée à l'accord préalable exprès du franchiseur, qui vérifie les aptitudes professionnelles, l'honorabilité et la solvabilité du repreneur.",
+            "Parallèlement, le contrat prévoit fréquemment un <strong>pacte de préférence ou droit de préemption</strong> au bénéfice du franchiseur. Celui-ci dispose d'un délai déterminé pour se substituer au cessionnaire envisagé, aux conditions et prix convenus dans le compromis.",
+            "L'omission de ces formalités contractuelles entraîne l'inopposabilité de la cession à l'égard du réseau et la résiliation immédiate du contrat d'enseigne aux torts du cédant, privant instantanément le fonds cédé de son exploitation sous marque."
+          ]
+        ],
+        [
+          "III. Le sort du bail commercial et les formalités légales",
+          [
+            "Conformément aux dispositions du Code de commerce régissant les baux commerciaux en Tunisie, la cession du fonds de commerce emporte de plein droit transmission du bail au successeur, nonobstant toute clause prohibitive ou restrictive contenue dans le bail d'origine.",
+            "Cette cession du droit au bail demeure toutefois conditionnée à la poursuite dans les lieux loués de la même activité commerciale ou d'une activité connexe.",
+            "Sur le plan formel, la vente doit faire l'objet d'un acte authentique ou sous seing privé rédigé avec rigueur, suivi des mesures de publicité légale obligatoires au Journal Officiel et au Registre National des Entreprises (RNE).",
+            "Ces publications ouvrent un délai légal durant lequel les créanciers du cédant peuvent former opposition au paiement du prix. La désignation d'un séquestre juridique (le cabinet d'avocats rédacteur) constitue la garantie indispensable pour sécuriser tant l'acquéreur contre le passif antérieur que le vendeur dans le règlement définitif de ses droits."
+          ]
+        ],
+        [
+          "Conseils pratiques pour sécuriser la transmission",
+          [
+            "1. <strong>Audit juridique préliminaire</strong> : examiner attentivement les durées résiduelles du contrat de franchise et du bail commercial avant toute offre ferme.",
+            "2. <strong>Rédaction sous conditions suspensives</strong> : lier l'engagement d'achat à l'agrément définitif du repreneur par le franchiseur et à la purge des préemptions.",
+            "3. <strong>Période de transition concertée</strong> : prévoir contractuellement une phase d'accompagnement du cédant auprès du repreneur pour assurer la continuité managériale.",
+            "4. <strong>Séquestre des fonds</strong> : consigner le prix auprès d'un compte professionnel séquestre jusqu'à radiation des privilèges et expiration des délais d'opposition."
+          ]
+        ]
+      ]
+    },
+    {
+      "slug": "publication-plaidoyer-consecration-droit-aux-loisirs-dans-dispositions-constitution-deuxieme-republique.html",
+      "title": "Plaidoyer pour la consécration du droit aux loisirs dans les dispositions de la constitution",
+      "short_title": "Droit aux loisirs & Constitution",
+      "date": "24 janvier 2018",
+      "author": "Me Taoufik Bouderbala",
+      "author_slug": "avocat-taoufik-bouderbala.html",
+      "author_role": "Avocat Associé Senior · Ancien Bâtonnier",
+      "author_img": "taoufik-bouderbala.jpg",
+      "category": "Droits fondamentaux & Libertés",
+      "read_time": "7 min de lecture",
+      "kicker": "Droits fondamentaux et protection constitutionnelle des libertés.",
+      "text": "Un plaidoyer en faveur de l'inscription et de la garantie effective du droit aux loisirs dans l'ordonnancement constitutionnel de la République.",
+      "original_url": "https://www.jurisaffaires.tn/droit/plaidoyer-consecration-droit-aux-loisirs-dans-dispositions-constitution-deuxieme-republique/",
+      "takeaways": [
+        "Dignité et équilibre humain : le loisir n'est pas un luxe mais une composante vitale de la santé et de la citoyenneté.",
+        "Ancrage universel : fondé sur l'article 24 de la DUDH et les pactes internationaux relatifs aux droits économiques et sociaux.",
+        "Obligations concrètes de l'État : aménagement des espaces publics, accessibilité des infrastructures et préservation du littoral.",
+        "Portée constitutionnelle : protection juridictionnelle contre la précarisation des rythmes de vie et les atteintes au domaine public."
+      ],
+      "sections": [
+        [
+          "I. Le loisir comme composante indissociable de la dignité humaine",
+          [
+            "Dans la hiérarchie des droits et libertés, le droit aux loisirs et au repos a trop souvent été relégué au rang d'agrément secondaire ou de privilège réservé à certaines catégories socioprofessionnelles.",
+            "Pourtant, une analyse approfondie de la condition humaine démontre que le temps libéré du travail est la condition <em>sine qua non</em> de l'épanouissement personnel, du développement culturel et de la participation active à la vie civique.",
+            "Dans un monde moderne caractérisé par l'intensification des cadences productives et la porosité grandissante entre sphère professionnelle et vie privée, la consécration d'un temps de repos effectif participe directement de la sauvegarde de la santé physique et mentale des citoyens."
+          ]
+        ],
+        [
+          "II. Les sources normatives internationales et comparées",
+          [
+            "L'affirmation de ce droit s'inscrit dans le prolongement direct des grands textes fondateurs du droit international des droits de l'Homme :",
+            "• L'<strong>article 24 de la Déclaration Universelle des Droits de l'Homme (1948)</strong> dispose solennellement que : <em>« Toute personne a droit au repos et aux loisirs et notamment à une limitation raisonnable de la durée du travail et à des congés payés périodiques »</em>.",
+            "• Le <strong>Pacte international relatif aux droits économiques, sociaux et culturels (PIDESC)</strong> reprend ces exigences en son article 7 en les qualifiant de conditions de travail justes et favorables.",
+            "• De nombreuses constitutions modernes et déclarations régionales des droits intègrent désormais expressément la protection du temps libre, des activités sportives et de l'accès aux richesses culturelles comme des libertés publiques opposables."
+          ]
+        ],
+        [
+          "III. Les obligations positives pesant sur les pouvoirs publics",
+          [
+            "L'inscription constitutionnelle du droit aux loisirs ne relève pas d'une pétition de principe abstraite : elle implique des obligations positives très concrètes à la charge de l'État et des municipalités.",
+            "Ces obligations se déclinent notamment à travers :",
+            "• <strong>L'aménagement urbain équitable</strong> : garantir dans chaque cité et quartier des espaces verts, des parcs publics sécurisés et des installations sportives de proximité ouvertes à tous.",
+            "• <strong>La défense du domaine public maritime et naturel</strong> : préserver le littoral et les plages contre les empiétements illégaux et la privatisation sauvage, afin de maintenir un accès libre et gratuit de la population à la mer.",
+            "• <strong>La politique culturelle et tarifaire</strong> : encourager l'accès aux théâtres, musées, bibliothèques et manifestations artistiques par des politiques tarifaires inclusives à l'intention des jeunes et des familles modestes."
+          ]
+        ],
+        [
+          "Conclusion : un impératif de modernité constitutionnelle",
+          [
+            "Consacrer le droit aux loisirs au plus haut sommet de l'ordre juridique, c'est proclamer que la finalité ultime de l'organisation politique et sociale n'est pas uniquement la production économique, mais la plénitude de la vie humaine.",
+            "C'est reconnaître que chaque citoyen a droit au repos, à la culture, au sport et à la contemplation dans un environnement sain et protecteur."
+          ]
+        ]
+      ]
+    }
+  ],
+  "stats_fixed": [
+    {
+      "value": "40+",
+      "label": "Années d'expérience"
+    },
+    {
+      "value": "4",
+      "label": "Avocats au Barreau de Tunis"
+    },
+    {
+      "value": "15",
+      "label": "Domaines d'intervention"
+    },
+    {
+      "value": "5",
+      "label": "Pôles d'expertise structurés"
+    }
+  ],
+  "practices": {
+    "0": [
+      {
+        "title": "Droit des sociétés",
+        "desc": "Création, cession et restructuration de sociétés. Constitution, gouvernance et opérations sur le capital.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Opérations de cession d'entreprise",
+        "desc": "Transmission d'entreprise, structuration et négociation de l'opération.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Restructuration &amp; levée de fonds",
+        "desc": "Expertise des opérations de restructuration, de cession et de levée de fonds.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Arbitrage &amp; contentieux des sociétés commerciales",
+        "desc": "Règlement amiable ou contentieux des différends entre associés et entre sociétés.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Droit commercial",
+        "desc": "Actes de commerce, contrats commerciaux et litiges afférents.",
+        "tag": "Contentieux"
+      }
+    ],
+    "1": [
+      {
+        "title": "Droit bancaire et financier",
+        "desc": "Le cabinet dispose d'une expertise reconnue dans le règlement de tous différends du domaine bancaire.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Projets de développement",
+        "desc": "Assistance et représentation sur tout projet de développement et de financement.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Conformité &amp; bancassurance",
+        "desc": "Conformité bancaire et questions liées à la bancassurance.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Droit fiscal",
+        "desc": "Assistance et représentation en matière fiscale, en coordination avec vos conseils comptables.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Droit des assurances",
+        "desc": "Couverture, sinistres, recours et Contentieux d'assurance.",
+        "tag": "Contentieux"
+      }
+    ],
+    "2": [
+      {
+        "title": "Transactions immobilières",
+        "desc": "Achat, vente et fiscalité immobilières. Cabinet notamment spécialisé en droit des ventes immobilières aux enchères publiques.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Droit social &amp; prud'hommes",
+        "desc": "Expertise reconnue dans le traitement des litiges des prud'hommes. Une approche préventive est toujours conseillée, dans l'objectif de garantir un certain équilibre entre le patronat et le salariat.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Droit maritime",
+        "desc": "Droit maritime, en conseil comme en contentieux.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Droit civil",
+        "desc": "Obligations, responsabilité et recours.",
+        "tag": "Contentieux"
+      }
+    ],
+    "3": [
+      {
+        "title": "Contentieux commercial &amp; civil",
+        "desc": "Défense de vos intérêts devant les tribunaux et les instances.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Droit pénal général &amp; spécial",
+        "desc": "Contentieux, risque pénal et assistance.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Affaires politiques et d'opinion",
+        "desc": "Accompagnement juridique dans un contexte politique ou d'opinion.",
+        "tag": "Conseil"
+      },
+      {
+        "title": "Droits de l'Homme",
+        "desc": "Le cabinet met à votre service son expérience de plus de 40 ans dans la défense des droits inaliénables de la personne.",
+        "tag": "Contentieux"
+      }
+    ],
+    "4": [
+      {
+        "title": "Règlement des litiges sportifs",
+        "desc": "Assistance et représentation pour le règlement des litiges sportifs.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Responsabilité &amp; manquements graves",
+        "desc": "Responsabilité des acteurs du sport, manquements graves et discipline.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Assistance &amp; représentation",
+        "desc": "Devant les instances sportives et juridictionnelles compétentes.",
+        "tag": "Contentieux"
+      },
+      {
+        "title": "Conseil aux acteurs du sport",
+        "desc": "Conseil juridique aux acteurs du sport.",
+        "tag": "Conseil"
+      }
+    ]
+  },
+  "engagements": {
+    "0": [
+      {
+        "title": "Un interlocuteur identifié",
+        "desc": "L'associé dont la spécialisation correspond au sujet."
+      },
+      {
+        "title": "Sécurisation avant exécution",
+        "desc": "Avant la signature, non après."
+      },
+      {
+        "title": "Continuité conseil / contentieux",
+        "desc": "Sans rupture de continuité."
+      }
+    ],
+    "1": [
+      {
+        "title": "Réactivité bancaire",
+        "desc": "Délais courts&nbsp;: l'équipe adaptée est mobilisée immédiatement."
+      },
+      {
+        "title": "Conseil et contentieux",
+        "desc": "À l'amiable, puis en contentieux si nécessaire."
+      },
+      {
+        "title": "Coordination avec vos conseils",
+        "desc": "En binôme avec vos directions."
+      }
+    ],
+    "2": [
+      {
+        "title": "Approche préventive",
+        "desc": "Avant que le litige ne naisse."
+      },
+      {
+        "title": "Enchères publiques",
+        "desc": "Ventes immobilières aux enchères publiques."
+      },
+      {
+        "title": "Équilibre des intérêts",
+        "desc": "Un accord qui préserve l'équilibre."
+      }
+    ],
+    "3": [
+      {
+        "title": "Délits d'affaires",
+        "desc": "Risque pénal des entreprises, affaires d'opinion."
+      },
+      {
+        "title": "Défense des libertés",
+        "desc": "40 ans de défense des droits de la personne."
+      },
+      {
+        "title": "Coordination pénal / civil",
+        "desc": "Défense pénale et ses suites civiles."
+      }
+    ],
+    "4": [
+      {
+        "title": "Spécialisation assumée",
+        "desc": "Un avocat spécialisé du cabinet."
+      },
+      {
+        "title": "Connaissance du milieu",
+        "desc": "Litiges sportifs, responsabilité des acteurs."
+      },
+      {
+        "title": "Assistance &amp; représentation",
+        "desc": "Assistance et représentation."
+      }
+    ]
+  },
+  "all_domains": [
+    "Droit des sociétés",
+    "Droit bancaire",
+    "Droit fiscal",
+    "Droit commercial",
+    "Contentieux commercial",
+    "Droit immobilier",
+    "Droit social",
+    "Droit du sport",
+    "Droit pénal général",
+    "Droit pénal spécial",
+    "Affaires politiques et d'opinion",
+    "Droit maritime",
+    "Droit des assurances",
+    "Droit civil",
+    "Droits de l'Homme"
+  ]
+}

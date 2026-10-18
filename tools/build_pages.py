@@ -52,6 +52,54 @@ NAV = [
     ("contact.html",       "Contact"),
 ]
 
+# ── Chargement du CMS JSON (si présent, écrase les constantes ci-dessus) ──
+# Permet à l'espace admin de piloter tout le contenu sans toucher au code.
+_CMS_PATH = os.path.join(ROOT, "data", "cms.json")
+try:
+    import json as _json
+    if os.path.exists(_CMS_PATH):
+        _cms = _json.load(open(_CMS_PATH, encoding="utf-8"))
+        _site = _cms.get("site", {})
+        NAME       = _site.get("NAME", NAME)
+        LEGAL_NAME = _site.get("LEGAL_NAME", LEGAL_NAME)
+        SITE_URL   = _site.get("SITE_URL", SITE_URL)
+        ADDRESS_1  = _site.get("ADDRESS_1", ADDRESS_1)
+        ADDRESS_2  = _site.get("ADDRESS_2", ADDRESS_2)
+        PHONE_MAIN = _site.get("PHONE_MAIN", PHONE_MAIN)
+        PHONE_2    = _site.get("PHONE_2", PHONE_2)
+        PHONE_3    = _site.get("PHONE_3", PHONE_3)
+        FAX        = _site.get("FAX", FAX)
+        EMAIL      = _site.get("EMAIL", EMAIL)
+        HOURS      = _site.get("HOURS", HOURS)
+        MAP_URL    = _site.get("MAP_URL", MAP_URL)
+        if "nav" in _cms:
+            NAV = [(x["href"], x["label"]) for x in _cms["nav"]]
+        if "expertise_subnav" in _cms:
+            EXPERTISE_SUBNAV = [(x["href"], x["label"]) for x in _cms["expertise_subnav"]]
+        if "pillars" in _cms:
+            PILLARS = _cms["pillars"]
+        if "sport" in _cms:
+            SPORT = _cms["sport"]
+        if "pillars" in _cms and "sport" in _cms:
+            ALL_EXPERTISES = PILLARS + [SPORT]
+        if "team" in _cms:
+            TEAM = _cms["team"]
+        if "clients" in _cms:
+            CLIENTS = [(x["file"], x["alt"]) for x in _cms["clients"]]
+        if "publications" in _cms:
+            PUBLICATIONS = _cms["publications"]
+        if "stats_fixed" in _cms:
+            STATS_FIXED = [(x["value"], x["label"]) for x in _cms["stats_fixed"]]
+        if "practices" in _cms:
+            PRACTICES = {int(k): [(p["title"], p["desc"], p["tag"]) for p in v] for k,v in _cms["practices"].items()}
+        if "engagements" in _cms:
+            ENGAGEMENTS = {int(k): [(e["title"], e["desc"]) for e in v] for k,v in _cms["engagements"].items()}
+        if "all_domains" in _cms:
+            ALL_DOMAINS = _cms["all_domains"]
+except Exception as _e:
+    # En cas de JSON corrompu on garde les valeurs codées en dur
+    print(f"[cms] chargement ignoré: {_e}")
+
 def slugify(text):
     text = text.replace("&amp;", " et ").replace("&", " et ")
     text = unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode()

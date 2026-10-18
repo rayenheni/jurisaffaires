@@ -445,7 +445,15 @@
       }
       say('', 'ok');
 
-      // Le mailto reste la seule transmission : rien n'est stocké.
+      // Envoi silencieux à l'admin si le backend est disponible (VPS)
+      try {
+        fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nom: get('nom'), societe: get('societe'), email: get('email'), tel: get('tel'), sujet: get('sujet'), message: get('message') })
+        }).catch(function(){});
+      } catch(_e2) {}
+
       window.setTimeout(function () {
         window.location.href = href;
         window.setTimeout(function () {

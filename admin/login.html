@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connexion — Admin JurisAffaires</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/admin.css">
+</head>
+<body class="login-body">
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="../assets/img/logo-jurisaffaires.png" alt="JurisAffaires" width="200" height="33">
+      <p>Espace d'administration</p>
+    </div>
+    <h1>Connexion</h1>
+    <p class="muted">Accès réservé au cabinet.</p>
+    <form id="loginForm" class="form-stack">
+      <label>Email
+        <input type="email" id="email" required autocomplete="username" placeholder="admin@jurisaffaires.tn" value="admin@jurisaffaires.tn">
+      </label>
+      <label>Mot de passe
+        <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+      </label>
+      <div id="loginError" class="alert alert--error" hidden></div>
+      <button type="submit" class="btn btn--primary btn--block" id="loginBtn">Se connecter</button>
+      <p class="login-hint muted">Défaut : <code>admin@jurisaffaires.tn</code> / <code>Admin123!</code> — à changer après première connexion.</p>
+    </form>
+  </div>
+  <div class="login-foot">
+    <a href="../index.html">← Retour au site</a>
+  </div>
+</div>
+<script>
+const form = document.getElementById('loginForm');
+const err = document.getElementById('loginError');
+const btn = document.getElementById('loginBtn');
+if (localStorage.getItem('ja_token')) {
+  // try to validate quickly
+  fetch('/api/auth/me', { headers:{ Authorization:'Bearer '+localStorage.getItem('ja_token') } })
+    .then(r=>{ if(r.ok) location.href='index.html'; });
+}
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  err.hidden=true;
+  btn.disabled=true; btn.textContent='Connexion…';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: email.value.trim(), password: password.value })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Identifiants invalides');
+    localStorage.setItem('ja_token', j.token);
+    localStorage.setItem('ja_user', JSON.stringify(j.user));
+    location.href = 'index.html';
+  } catch(e2){
+    err.textContent = e2.message;
+    err.hidden=false;
+  } finally {
+    btn.disabled=false; btn.textContent='Se connecter';
+  }
+});
+</script>
+</body>
+</html>
