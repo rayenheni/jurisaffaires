@@ -86,7 +86,12 @@
   var menu = document.getElementById('mobileMenu');
 
   if (burger && menu) {
-    function setMenu(open) {
+    var menuLinks = function () {
+      return Array.prototype.slice.call(
+        menu.querySelectorAll('a[href], button:not([disabled])'));
+    };
+
+    function setMenu(open, restoreFocus) {
       if (open && header) header.classList.remove('is-hidden');
       burger.classList.toggle('is-open', open);
       burger.setAttribute('aria-expanded', String(open));
@@ -94,20 +99,44 @@
       menu.classList.toggle('is-open', open);
       menu.setAttribute('aria-hidden', String(!open));
       document.body.classList.toggle('is-locked', open);
+      if (open) {
+        // Le panneau passe de `visibility: hidden` à `visible` avec une
+        // transition : on attend la fin du fondu avant de déplacer le focus,
+        // sinon `focus()` est refusé par le navigateur.
+        window.setTimeout(function () {
+          if (!menu.classList.contains('is-open')) return;
+          var first = menuLinks()[0];
+          if (first) first.focus();
+        }, 240);
+      } else if (restoreFocus) {
+        burger.focus();
+      }
     }
 
     burger.addEventListener('click', function () {
-      setMenu(!menu.classList.contains('is-open'));
+      setMenu(!menu.classList.contains('is-open'), true);
     });
 
     menu.addEventListener('click', function (e) {
-      if (e.target.closest('a')) setMenu(false);
+      if (e.target.closest('a')) setMenu(false, false);
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && menu.classList.contains('is-open')) {
-        setMenu(false);
-        burger.focus();
+      if (!menu.classList.contains('is-open')) return;
+      if (e.key === 'Escape') {
+        setMenu(false, true);
+        return;
+      }
+      // Focus trap: keep keyboard navigation inside the open drawer.
+      if (e.key !== 'Tab') return;
+      var items = menuLinks();
+      if (!items.length) return;
+      var firstEl = items[0];
+      var lastEl = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault(); lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault(); firstEl.focus();
       }
     });
 
@@ -190,16 +219,41 @@
 
   if (stickyBar) {
     var hero = document.getElementById('hero');
+    var stickyForm = document.getElementById('contactForm');
+    var stickyFooter = document.querySelector('footer.footer');
+
+    function overlapsViewport(el) {
+      if (!el) return false;
+      var r = el.getBoundingClientRect();
+      return r.top < window.innerHeight - 8 && r.bottom > 0;
+    }
+
+    function applySticky(visible) {
+      stickyBar.classList.toggle('is-visible', visible);
+      // `inert` retire les deux liens de la barre de l'ordre de tabulation ;
+      // `aria-hidden` la retire de l'arbre d'accessibilité tant qu'elle est
+      // hors écran. Les deux attributs vont toujours ensemble.
+      if (visible) {
+        stickyBar.removeAttribute('inert');
+        stickyBar.removeAttribute('aria-hidden');
+      } else {
+        stickyBar.setAttribute('inert', '');
+        stickyBar.setAttribute('aria-hidden', 'true');
+      }
+    }
 
     function onSticky() {
       if (window.innerWidth >= 1060) {
-        stickyBar.classList.remove('is-visible');
+        stickyBar.classList.remove('is-suppressed');
+        applySticky(false);
         return;
       }
       var past = (window.pageYOffset || 0) > (hero ? hero.offsetHeight - 140 : 600);
-      var atBottom =
-        (window.pageYOffset || 0) + window.innerHeight > document.body.scrollHeight - 40;
-      stickyBar.classList.toggle('is-visible', past && !atBottom);
+      // La barre ne doit recouvrir ni un champ du formulaire, ni la fin du
+      // pied de page. Elle s'efface tant que l'un des deux est à l'écran.
+      var blocked = overlapsViewport(stickyForm) || overlapsViewport(stickyFooter);
+      stickyBar.classList.toggle('is-suppressed', blocked);
+      applySticky(past && !blocked);
     }
 
     window.addEventListener('scroll', onSticky, { passive: true });
@@ -231,68 +285,138 @@
   var form = document.getElementById('contactForm');
 
   if (form) {
-    var feedback = form.querySelector('.form__feedback');
+    var feedback = document.getElementById('formFeedback');
+    var successBox = document.getElementById('formSuccess');
+    var submitBtn = form.querySelector('button[type="submit"], button');
+
+    var RULES = {
+      nom: function (v) {
+        return v.length >= 2 ? '' : 'Indiquez votre nom et prénom (2 caractères minimum).';
+      },
+      email: function (v) {
+        return /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(v)
+          ? '' : 'Saisissez une adresse e-mail valide, par exemple nom@societe.tn.';
+      },
+      tel: function (v) {
+        if (!v) return '';
+        var digits = v.replace(/\D/g, '');
+        return digits.length >= 8 && digits.length <= 15
+          ? '' : 'Saisissez un numéro valide (8 à 15 chiffres).';
+      },
+      sujet: function (v) {
+        return v ? '' : 'Sélectionnez une expertise dans la liste.';
+      },
+      message: function (v) {
+        return v.length >= 10 ? '' : 'Décrivez votre demande en quelques mots (10 caractères minimum).';
+      }
+    };
+
+    var LABELS = {
+      nom: 'Nom et prénom',
+      email: 'Adresse e-mail',
+      tel: 'Téléphone',
+      sujet: 'Sujet du dossier',
+      message: 'Votre message'
+    };
+
+    var fieldEl = function (name) { return form.querySelector('[name="' + name + '"]'); };
+    var errorEl = function (name) { return document.getElementById('err-' + name); };
 
     var say = function (message, tone) {
       if (!feedback) return;
-      feedback.textContent = message;
-      if (!message) { feedback.hidden = true; return; }   // plus rien a signaler
+      feedback.textContent = message || '';
+      if (!message) { feedback.hidden = true; return; }
       feedback.setAttribute('data-tone', tone);
       feedback.hidden = false;
     };
 
-    var clearField = function (el) {
-      el.removeAttribute('aria-invalid');
-      el.classList.remove('is-invalid');
+    var setFieldError = function (name, message) {
+      var el = fieldEl(name);
+      var err = errorEl(name);
+      if (!el) return;
+      if (message) {
+        el.setAttribute('aria-invalid', 'true');
+        el.classList.add('is-invalid');
+        if (err) { err.textContent = message; err.hidden = false; }
+      } else {
+        el.removeAttribute('aria-invalid');
+        el.classList.remove('is-invalid');
+        if (err) { err.textContent = ''; err.hidden = true; }
+      }
     };
 
-    var fields = function () {
-      return Array.prototype.slice.call(
-        form.querySelectorAll('input[required], textarea[required], select[required]'));
+    var validate = function (name) {
+      var el = fieldEl(name);
+      if (!el) return '';
+      var value = (el.value || '').trim();
+      if (el.required && !value) {
+        return name === 'sujet'
+          ? 'Sélectionnez une expertise dans la liste.'
+          : 'Ce champ est obligatoire.';
+      }
+      return RULES[name] ? RULES[name](value) : '';
     };
 
-    // On efface l'erreur d'un champ dès que l'utilisateur le corrige,
-    // et le compteur du message est recalculé à chaque frappe.
-    var recount = function () {
-      var left = fields().filter(function (el) { return !el.value.trim(); }).length;
-      if (left === 0) { say('', 'ok'); return; }
-      say(left === 1
-        ? 'Ce champ est obligatoire.'
-        : left + ' champs obligatoires sont encore vides.', 'error');
+    var validateAll = function () {
+      var errors = [];
+      Object.keys(RULES).forEach(function (name) {
+        var message = validate(name);
+        setFieldError(name, message);
+        if (message) errors.push({ name: name, message: message });
+      });
+      return errors;
     };
 
-    fields().forEach(function (el) {
+    var summary = function (errors) {
+      if (!errors.length) { say('', 'ok'); return; }
+      var names = errors.map(function (e) { return LABELS[e.name]; });
+      var list = names.length === 1
+        ? names[0]
+        : names.slice(0, -1).join(', ') + ' et ' + names[names.length - 1];
+      say(errors.length === 1
+        ? 'Un champ est à corriger : ' + list + '.'
+        : errors.length + ' champs sont à corriger : ' + list + '.', 'error');
+    };
+
+    // Efface une erreur dès que la saisie devient valide.
+    Object.keys(RULES).forEach(function (name) {
+      var el = fieldEl(name);
+      if (!el) return;
       var handler = function () {
-        var wasInvalid = el.getAttribute('aria-invalid') === 'true';
-        if (el.value.trim()) clearField(el);
-        if (wasInvalid) recount();
+        if (el.getAttribute('aria-invalid') === 'true') {
+          var message = validate(name);
+          setFieldError(name, message);
+          var remaining = Object.keys(RULES).filter(function (n) { return validate(n); });
+          if (!remaining.length) say('', 'ok');
+          else summary(remaining.map(function (n) { return { name: n }; }));
+        }
       };
       el.addEventListener('input', handler);
       el.addEventListener('change', handler);
+      el.addEventListener('blur', function () {
+        if (el.value.trim()) setFieldError(name, validate(name));
+      });
     });
+
+    if (form) {
+      form.setAttribute('aria-describedby', 'formLegal');
+    }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (successBox) successBox.hidden = true;
 
-      var required = fields();
-      var missing = required.filter(function (el) { return !el.value.trim(); });
+      var errors = validateAll();
+      summary(errors);
 
-      required.forEach(clearField);
-
-      if (missing.length) {
-        missing.forEach(function (el) {
-          el.setAttribute('aria-invalid', 'true');
-          el.classList.add('is-invalid');
-        });
-        say(missing.length === 1
-          ? 'Ce champ est obligatoire.'
-          : missing.length + ' champs obligatoires sont encore vides.', 'error');
-        missing[0].focus();
+      if (errors.length) {
+        var first = fieldEl(errors[0].name);
+        if (first) first.focus();
         return;
       }
 
       var get = function (n) {
-        var el = form.querySelector('[name="' + n + '"]');
+        var el = fieldEl(n);
         return el ? el.value.trim() : '';
       };
 
@@ -311,12 +435,26 @@
         + '?subject=' + encodeURIComponent('Demande de contact — ' + get('sujet'))
         + '&body=' + encodeURIComponent(body);
 
-      var btn = form.querySelector('button[type="submit"], button');
-      if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); }
-      say('Votre messagerie s’ouvre avec le message pré-rempli. '
-        + 'Si rien ne s’ouvre, écrivez directement à avocats-conseils@jurisaffaires.net.', 'ok');
+      if (submitBtn) {
+        submitBtn.setAttribute('aria-busy', 'true');
+        submitBtn.disabled = true;
+      }
+      if (successBox) {
+        successBox.hidden = false;
+        successBox.focus();
+      }
+      say('', 'ok');
 
-      window.location.href = href;
+      // Le mailto reste la seule transmission : rien n'est stocké.
+      window.setTimeout(function () {
+        window.location.href = href;
+        window.setTimeout(function () {
+          if (submitBtn) {
+            submitBtn.removeAttribute('aria-busy');
+            submitBtn.disabled = false;
+          }
+        }, 2500);
+      }, 120);
     });
   }
 })();

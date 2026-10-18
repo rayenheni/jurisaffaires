@@ -57,6 +57,10 @@
   /* Accents mappés sur l'or champagne et le vert ardoise officiels */
   --accent:         #AE9A63;
   --accent-soft:    #C9B889;
+  /* Déclinaison du champagne lisible sur fond clair (5,3:1 sur papier).
+     L'or officiel #AE9A63 reste réservé aux surfaces sombres et aux
+     éléments purement décoratifs. */
+  --accent-text:    #7A6733;
   --accent-wash:    rgba(174, 154, 99, .12);
   --green-wash:     rgba(79, 108, 98, .12);
 
@@ -112,6 +116,9 @@ body {
 }
 
 body.is-locked { overflow: hidden; }
+/* Aucun débordement horizontal possible, même pendant les animations
+   d'apparition qui translatent les blocs de 26 px. */
+body { overflow-x: clip; }
 
 img,
 svg { display: block; max-width: 100%; }
@@ -143,7 +150,7 @@ p { margin: 0; }
 
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: var(--ink-deep);
 }
 
 :focus-visible {
@@ -158,7 +165,7 @@ p { margin: 0; }
   top: 0;
   z-index: 200;
   background: var(--accent);
-  color: #fff;
+  color: var(--ink-deep);
   padding: 12px 20px;
   font-size: .82rem;
   letter-spacing: .08em;
@@ -597,12 +604,12 @@ p { margin: 0; }
   color: rgba(244, 240, 232, .82);
   transition: color .35s var(--ease-out);
 }
-@media (min-width: 1400px) { .header__phone { display: inline-flex; } }
+@media (min-width: 1360px) { .header__phone { display: inline-flex; } }
 .header__phone:hover { color: var(--accent-soft); }
 .header__phone svg { width: 15px; height: 15px; color: var(--accent-soft); }
 
 .header__cta { display: none; }
-@media (min-width: 1240px) { .header__cta { display: inline-flex; } }
+@media (min-width: 1160px) { .header__cta { display: inline-flex; } }
 
 /* Burger */
 .burger {
@@ -657,7 +664,7 @@ p { margin: 0; }
   visibility: visible;
   transform: translateY(0);
 }
-@media (min-width: 1024px) {
+@media (min-width: 1060px) {
   .mobile-menu { display: none; }
 }
 
@@ -1185,7 +1192,7 @@ p { margin: 0; }
   transition: color .35s var(--ease-out), gap .35s var(--ease-out);
 }
 .pillar__cta svg { width: 13px; height: 13px; transition: transform .4s var(--ease-out); }
-.pillar:hover .pillar__cta { color: var(--accent); }
+.pillar:hover .pillar__cta { color: var(--accent-text); }
 .pillar:hover .pillar__cta svg { transform: translateX(4px); }
 
 /* Note under the grid */
@@ -1249,7 +1256,7 @@ p { margin: 0; }
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--accent-soft);
-  border: 1px solid rgba(194, 154, 108, .32);
+  border: 1px solid rgba(201, 184, 137, .32);
   border-radius: 100px;
   padding: 7px 15px;
   margin-bottom: 28px;
@@ -1456,7 +1463,7 @@ p { margin: 0; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(162, 117, 74, .10), transparent 46%);
+  background: linear-gradient(to top, rgba(174, 154, 99, .10), transparent 46%);
   opacity: 0;
   transition: opacity .6s var(--ease-out);
 }
@@ -1543,15 +1550,15 @@ p { margin: 0; }
   padding: 5px 12px;
   transition: border-color .4s var(--ease-out), color .4s var(--ease-out);
 }
-.member:hover .member__tags li { border-color: rgba(162, 117, 74, .4); }
+.member:hover .member__tags li { border-color: rgba(174, 154, 99, .4); }
 
 /* La puce « +N » resume les competences non affichees : elle se
    distingue des autres pour qu'on ne la lise pas comme une specialite. */
 .member__tags-more,
 .member:hover .member__tags-more {
   color: var(--accent-text);
-  border-color: rgba(138, 101, 52, .28);
-  background: rgba(138, 101, 52, .06);
+  border-color: rgba(110, 92, 44, .28);
+  background: rgba(110, 92, 44, .06);
   letter-spacing: .08em;
 }
 
@@ -1560,7 +1567,7 @@ p { margin: 0; }
   color: rgba(244, 240, 232, .62);
   border-color: var(--line-dark);
 }
-.on-dark .member:hover .member__tags li { border-color: rgba(194, 154, 108, .5); }
+.on-dark .member:hover .member__tags li { border-color: rgba(201, 184, 137, .5); }
 .member__cta { margin-top: auto; padding-top: 24px; align-self: flex-start; }
 
 .team-footnote {
@@ -1957,6 +1964,13 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .sticky-bar.is-visible { transform: translateY(0); }
+/* Masquée quand le formulaire ou le pied de page est à l'écran : elle ne
+   doit recouvrir aucun champ ni la fin du footer. */
+.sticky-bar.is-suppressed {
+  transform: translateY(101%);
+  visibility: hidden;
+  pointer-events: none;
+}
 @media (min-width: 1024px) {
   .sticky-bar { display: none !important; }
   body { padding-bottom: 0 !important; }
@@ -1981,8 +1995,8 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   transition: background-color .35s var(--ease-out);
 }
 .sticky-bar__btn svg { width: 15px; height: 15px; color: var(--accent-soft); }
-.sticky-bar__btn--accent { background: var(--accent); color: #fff; }
-.sticky-bar__btn--accent svg { color: #fff; }
+.sticky-bar__btn--accent { background: var(--accent); color: var(--ink-deep); }
+.sticky-bar__btn--accent svg { color: var(--ink-deep); }
 .sticky-bar__btn:active { background: var(--ink-3); }
 .sticky-bar__btn--accent:active { background: var(--accent); }
 
@@ -1998,8 +2012,15 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   transition-delay: var(--reveal-delay, 0ms);
 }
 .js [data-reveal="fade"] { transform: none; }
-.js [data-reveal="left"]  { transform: translateX(-26px); }
-.js [data-reveal="right"] { transform: translateX(26px); }
+/* Sous 720 px, les blocs occupent toute la largeur utile : une
+   translation horizontale dépasserait du viewport. On garde alors un
+   mouvement vertical, strictement dans l'axe de lecture. */
+.js [data-reveal="left"]  { transform: translateY(22px); }
+.js [data-reveal="right"] { transform: translateY(22px); }
+@media (min-width: 720px) {
+  .js [data-reveal="left"]  { transform: translateX(-26px); }
+  .js [data-reveal="right"] { transform: translateX(26px); }
+}
 .js [data-reveal="scale"] { transform: translateY(18px) scale(.985); }
 
 .js [data-reveal].is-visible {
@@ -2111,7 +2132,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   width: 6px; height: 1px;
   background: var(--accent);
 }
-.legal-body a { color: var(--accent); border-bottom: 1px solid rgba(162, 117, 74, .4); }
+.legal-body a { color: var(--accent-text); border-bottom: 1px solid rgba(174, 154, 99, .4); }
 .legal-body a:hover { border-bottom-color: var(--accent); }
 
 
@@ -2272,7 +2293,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   content: "";
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(162, 117, 74, .45);
+  border: 1px solid rgba(174, 154, 99, .45);
   pointer-events: none;
 }
 .plate--sm { padding: 14px; }
@@ -2294,10 +2315,31 @@ a.contact-row__value:hover { color: var(--accent-soft); }
 }
 .subnav__inner {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 4px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+@media (max-width: 719px) {
+  .subnav { position: relative; }
+  /* Dernière entrée rognée : un dégradé signale qu'on peut faire défiler. */
+  .subnav::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 1px;
+    width: 44px;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(252, 251, 248, 0), var(--paper) 82%);
+  }
+  .subnav__inner {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    scroll-snap-type: x proximity;
+    padding-right: 40px;
+  }
+  .subnav__link { scroll-snap-align: start; }
 }
 .subnav__inner::-webkit-scrollbar { display: none; }
 .subnav__link {
@@ -2494,7 +2536,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   font-size: .625rem;
   font-weight: 500;
   letter-spacing: .2em;
-  color: var(--accent);
+  color: var(--accent-text);
   display: block;
   margin-bottom: 20px;
 }
@@ -2651,7 +2693,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   text-transform: uppercase;
   color: var(--stone);
 }
-.field label span { color: var(--accent); }
+.field label span { color: var(--accent-text); }
 .field input,
 .field select,
 .field textarea {
@@ -2768,7 +2810,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   max-width: 24ch;
   transition: color .3s var(--ease-out);
 }
-a.archive__item:hover .archive__title { color: var(--accent); }
+a.archive__item:hover .archive__title { color: var(--accent-text); }
 .archive__text {
   font-size: .96rem;
   line-height: 1.72;
@@ -2837,7 +2879,7 @@ a.archive__item:hover .archive__title { color: var(--accent); }
   color: rgba(244, 240, 232, .82);
   font-weight: 300;
 }
-.facts__value a { border-bottom: 1px solid rgba(194, 154, 108, .35); transition: color .3s var(--ease-out); }
+.facts__value a { border-bottom: 1px solid rgba(201, 184, 137, .35); transition: color .3s var(--ease-out); }
 .facts__value a:hover { color: var(--accent-soft); }
 
 
@@ -2853,7 +2895,7 @@ a.archive__item { text-decoration: none; }
 
 a.member__photo { display: block; }
 a.member__name a { display: inline; transition: color .3s var(--ease-out); }
-a.member__name a:hover { color: var(--accent); }
+a.member__name a:hover { color: var(--accent-text); }
 
 .pillar:hover .pillar__num { opacity: .7; }
 .pillar__num { transition: opacity .4s var(--ease-out); }
@@ -3250,12 +3292,13 @@ body { background: var(--paper-2); }
 /* Desktop navigation */
 .header .nav {
   display: none;
+  min-width: 0;
 }
-@media (min-width: 1024px) {
+@media (min-width: 1060px) {
   .header .nav {
     display: flex;
     align-items: center;
-    gap: clamp(4px, .8vw, 12px);
+    gap: clamp(2px, .55vw, 9px);
     margin: 0 auto;
   }
 }
@@ -3320,7 +3363,7 @@ body { background: var(--paper-2); }
   text-decoration: none;
   transition: color .2s var(--ease-out), background-color .2s var(--ease-out);
 }
-@media (min-width: 1320px) {
+@media (min-width: 1360px) {
   .header__phone {
     display: inline-flex;
   }
@@ -3355,7 +3398,9 @@ body { background: var(--paper-2); }
   box-shadow: 0 2px 10px rgba(79, 108, 98, .30);
   border: none;
 }
-@media (min-width: 1024px) {
+/* La pastille de contact n'apparaît que lorsque la barre a la place de
+   l'accueillir sans rogner le dernier caractère (mesuré : 1160 px). */
+@media (min-width: 1160px) {
   .header__cta {
     display: inline-flex;
   }
@@ -3395,7 +3440,7 @@ body { background: var(--paper-2); }
   transition: border-color .25s var(--ease-out), background-color .25s var(--ease-out);
   flex-shrink: 0;
 }
-@media (min-width: 1024px) {
+@media (min-width: 1060px) {
   .burger {
     display: none;
   }
@@ -3424,7 +3469,7 @@ body { background: var(--paper-2); }
 .burger.is-open .burger__lines span:nth-child(2) { opacity: 0; }
 .burger.is-open .burger__lines span:nth-child(3) { transform: translateY(-5.25px) rotate(-45deg); }
 
-@media (max-width: 1023px) {
+@media (max-width: 1059px) {
   .header__bar {
     padding: 6px 12px 6px 18px;
   }
@@ -3512,7 +3557,7 @@ body { background: var(--paper-2); }
 /* ---------------------------------------------------------------------
    30.9 — Surtitres de section : numéro discret, plus de filet plein
    --------------------------------------------------------------------- */
-.section-index { color: var(--accent); }
+.section-index { color: var(--accent-text); }
 
 /* ---------------------------------------------------------------------
    30.10 — Pied de page : bloc sombre posé, comme dans la référence
@@ -3896,7 +3941,7 @@ body { background: var(--paper-2); }
     var(--paper-2) 34%, rgba(252, 251, 248, .82) 66%, rgba(252, 251, 248, .58) 100%);
 }
 .page-hero__title { color: var(--ink); font-size: clamp(2.1rem, 4.5vw, 3.7rem); }
-.page-hero__title em { color: var(--accent); }
+.page-hero__title em { color: var(--accent-text); }
 .page-hero__text { color: var(--slate); }
 .page-hero__text strong { color: var(--ink); font-weight: 500; }
 .page-hero__num { color: rgba(11, 22, 32, .055); }
@@ -3914,14 +3959,14 @@ body { background: var(--paper-2); }
   border-radius: var(--r-md);
   box-shadow: 0 22px 54px -34px rgba(11, 22, 32, .38);
 }
-.page-hero .aside-panel__title { color: var(--accent); border-bottom-color: var(--line-light); }
+.page-hero .aside-panel__title { color: var(--accent-text); border-bottom-color: var(--line-light); }
 .page-hero .aside-panel li { color: var(--slate); border-bottom-color: var(--line-light-soft); }
-.page-hero .aside-panel li b { color: var(--accent); }
+.page-hero .aside-panel li b { color: var(--accent-text); }
 
 /* Plaque portrait : la bordure bronze devient un simple filet doux */
 .plate { border-radius: var(--r-lg); overflow: hidden; padding: 0; }
 .plate img { border-radius: var(--r-lg); }
-.plate::after { border-color: rgba(162, 117, 74, .3); border-radius: var(--r-lg); }
+.plate::after { border-color: rgba(174, 154, 99, .3); border-radius: var(--r-lg); }
 
 /* Barre de sous-navigation */
 .subnav {
@@ -3955,7 +4000,7 @@ body { background: var(--paper-2); }
 
 /* Fiches avocat — le nom était blanc, il doit être encre sur le hero clair */
 .profile-name { color: var(--ink); }
-.profile-name span { color: var(--accent); }
+.profile-name span { color: var(--accent-text); }
 .profile-role { color: var(--stone); }
 
 /* Le panneau « Bureau de Tunis » : le texte des lignes gardait la couleur
@@ -3996,7 +4041,7 @@ body { background: var(--paper-2); }
 .pillar::after { display: none; }
 .pillar:hover {
   transform: translateY(-5px);
-  border-color: rgba(162, 117, 74, .38);
+  border-color: rgba(174, 154, 99, .38);
   box-shadow: 0 26px 52px -30px rgba(11, 22, 32, .34);
 }
 .pillar__num {
@@ -4004,7 +4049,7 @@ body { background: var(--paper-2); }
   margin-bottom: 16px;
   padding: 5px 12px;
   border-radius: var(--r-pill);
-  background: rgba(162, 117, 74, .1);
+  background: rgba(174, 154, 99, .1);
   color: var(--accent);
 }
 .pillar__title { font-family: var(--font-head); font-weight: 400; }
@@ -4143,9 +4188,11 @@ main h2,
 .cta-band__title { letter-spacing: -.032em; line-height: 1.02; }
 
 /* Archive : la date doit rester sur une ligne */
-.archive__item { grid-template-columns: 190px minmax(0, 1fr); }
-.archive__meta { flex-wrap: nowrap; white-space: nowrap; gap: 6px 10px; }
-.archive__meta span { white-space: nowrap; }
+@media (min-width: 820px) {
+  .archive__item { grid-template-columns: 190px minmax(0, 1fr); }
+  .archive__meta { flex-wrap: nowrap; white-space: nowrap; gap: 6px 10px; }
+  .archive__meta span { white-space: nowrap; }
+}
 
 /* Titres de second niveau posés sur une surface encre */
 .section--ink h2,
@@ -4173,7 +4220,7 @@ main h2,
   margin-bottom: 16px;
   padding: 5px 12px;
   border-radius: var(--r-pill);
-  background: rgba(162, 117, 74, .1);
+  background: rgba(174, 154, 99, .1);
 }
 .features { gap: clamp(12px, 1.2vw, 18px); }
 
@@ -4191,14 +4238,14 @@ main h2,
 /* --- jetons de texte : les tons d'origine sont sous 4,5:1 sur ivoire --- */
 :root {
   --stone-text: #676259;   /* 5,9:1 sur papier —Was 4,31 */
-  --accent-text: #8A6534;  /* 5,1:1 sur papier — Was 3,92 */
+  --accent-text: #7A6733;  /* 5,3:1 sur papier (or champagne assombri) */
 }
 
 /* --- fiche avocat : le bloc « faits » passe sur fond clair --- */
 .facts { border-top-color: var(--line-light); }
 .facts__label { color: var(--stone-text); }
 .facts__value { color: var(--ink); font-weight: 400; }
-.facts__value a { border-bottom-color: rgba(138, 101, 52, .4); }
+.facts__value a { border-bottom-color: rgba(110, 92, 44, .4); }
 .facts__value a:hover { color: var(--accent-text); }
 .facts__row { border-bottom-color: var(--line-light-soft); }
 
@@ -4224,11 +4271,11 @@ main h2,
 
 .pillar__num,
 .feature__num,
-.practice__num { background: rgba(138, 101, 52, .1); }
+.practice__num { background: rgba(110, 92, 44, .1); }
 .practice__tag {
   background: rgba(11, 22, 32, .06);
   color: var(--accent-text);
-  border: 1px solid rgba(138, 101, 52, .22);
+  border: 1px solid rgba(110, 92, 44, .22);
 }
 
 /* --- accents bronze sur fond clair --- */
@@ -4385,7 +4432,7 @@ main h2,
   border-bottom: 1px solid transparent;
   transition: color .3s var(--ease-out), border-color .3s var(--ease-out);
 }
-.pillar__link:hover { color: var(--accent-text); border-bottom-color: rgba(138, 101, 52, .4); }
+.pillar__link:hover { color: var(--accent-text); border-bottom-color: rgba(110, 92, 44, .4); }
 .practice__title a { transition: color .3s var(--ease-out); }
 .practice__title a:hover { color: var(--accent-text); }
 .practice__row:hover .practice__num { color: var(--accent); }
@@ -4436,7 +4483,7 @@ main h2,
 }
 .related--cards .related__item:hover {
   transform: translateY(-4px);
-  border-color: rgba(138, 101, 52, .35);
+  border-color: rgba(110, 92, 44, .35);
   box-shadow: 0 24px 48px -30px rgba(11, 22, 32, .34);
 }
 
@@ -4534,8 +4581,8 @@ main h2,
 }
 .form__feedback[hidden] { display: none; }
 .form__feedback[data-tone="error"] {
-  background: rgba(138, 101, 52, .1);
-  border-color: rgba(138, 101, 52, .4);
+  background: rgba(110, 92, 44, .1);
+  border-color: rgba(110, 92, 44, .4);
   color: #6B4A22;
 }
 .form__feedback[data-tone="ok"] {
@@ -4716,7 +4763,7 @@ main h2,
   text-decoration: none;
   transition: color .4s var(--ease-out);
 }
-.mega__line a:hover { color: var(--accent); }
+.mega__line a:hover { color: var(--accent-text); }
 /* L'adresse est trois fois plus longue que la ligne du dessus : on la
    regle a sa propre mesure pour qu'elle tienne sur une seule ligne. */
 .mega__line--alt {
@@ -5256,3 +5303,277 @@ a.member__cta:hover::after {
   margin-top: 14px;
 }
 
+
+
+/* =====================================================================
+   51 — FINITION PRODUCTION
+   ---------------------------------------------------------------------
+   Corrections issues de l'audit final : contraste des micro-libellés
+   dorés sur fond clair, retour de formulaire champ par champ, sécurité
+   de mise en page sous la barre d'action mobile.
+   ===================================================================== */
+
+/* 51.1 — Or champagne lisible : le ton officiel #AE9A63 (2,7:1 sur
+   papier) reste décoratif ; le texte passe sur sa déclinaison foncée
+   #7A6733 (5,3:1). Aucune teinte hors charte n'est introduite. */
+.member__name span,
+.pillar__num,
+.feature__num,
+.related__num,
+.practice__num,
+.member__num,
+.section-index,
+.aside-panel li b,
+.page-hero .aside-panel li b,
+.page-hero .aside-panel__title,
+.field label span,
+.article__author-box h3,
+.prose a:hover,
+.legal-body a,
+.legal-body a:hover {
+  color: var(--accent-text);
+}
+.member__role { color: var(--slate); }
+a.archive__item:hover .archive__title,
+.mega__line a:hover,
+.mega__links a:hover { color: var(--accent-text); }
+
+/* 51.2 — Le bloc auteur est un h3 (hiérarchie h1 > h2 > h3) */
+.article__author-box h4,
+.article__author-box h3 {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 4px;
+}
+
+/* 51.3 — Retour de formulaire : un message par champ, visible et relié
+   au champ par aria-describedby. */
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 2px 0 0;
+  font-size: .78rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #8C2F12;                 /* 6,6:1 sur papier */
+}
+.field__error::before {
+  content: "!";
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: #8C2F12;
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.field__error[hidden] { display: none; }
+.field input[aria-invalid="true"],
+.field select[aria-invalid="true"],
+.field textarea[aria-invalid="true"] {
+  border-bottom-color: #8C2F12;
+  box-shadow: inset 0 -1px 0 #8C2F12;
+}
+.field input[aria-invalid="true"]:focus,
+.field select[aria-invalid="true"]:focus,
+.field textarea[aria-invalid="true"]:focus {
+  border-bottom-color: #8C2F12;
+}
+.field__hint {
+  font-size: .74rem;
+  color: var(--stone-text);
+  line-height: 1.5;
+}
+.form__feedback {
+  display: block;
+  margin: 0 0 18px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
+  font-size: .88rem;
+  line-height: 1.55;
+}
+.form__feedback[data-tone="error"] {
+  background: #FBF1EE;
+  border-color: #8C2F12;
+  color: #6E2410;
+}
+.form__feedback[data-tone="ok"] {
+  background: var(--green-wash);
+  border-color: var(--brand-green);
+  color: var(--brand-green-deep);
+}
+.form__success {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 0 0 22px;
+  padding: 18px 20px;
+  border: 1px solid rgba(79, 108, 98, .35);
+  border-left: 3px solid var(--brand-green);
+  border-radius: var(--r-sm);
+  background: var(--green-wash);
+  color: var(--brand-green-deep);
+  font-size: .9rem;
+  line-height: 1.6;
+}
+.form__success[hidden] { display: none; }
+.form__success svg { flex: none; color: var(--brand-green); margin-top: 2px; }
+.form__success b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+.form__success a { color: var(--brand-green-deep); text-decoration: underline; text-underline-offset: 2px; }
+.form__success a:hover { color: var(--brand-green); }
+
+/* 51.4 — La barre d'action fixe ne recouvre ni le formulaire ni le pied
+   de page : on réserve aussi la hauteur sous le dernier champ. */
+@media (max-width: 1023px) {
+  html { scroll-padding-bottom: 92px; }
+  #contactForm { scroll-margin-bottom: 92px; }
+}
+
+/* 51.5 — Mobile : le menu plein écran laisse la place au bouton burger
+   (focus trap) et la barre d'action s'efface devant le formulaire. */
+.mobile-menu { overscroll-behavior: contain; }
+.sticky-bar { transition: transform .5s var(--ease-out), visibility .5s; }
+
+/* 51.6 — Rappel des champs obligatoires, posé avant le formulaire. */
+.form__hint {
+  margin: 0 0 4px;
+  font-size: .76rem;
+  line-height: 1.5;
+  color: var(--stone-text);
+}
+
+/* 51.7 — Derniers contrastes mesurés à l'axe.
+   · pastilles « practice » posées sur un fond bronze à 10 % : il faut
+     une déclinaison plus foncée que --accent-text (5,0:1) ;
+   · titre de panneau latéral clair : l'ancien or pâle (1,9:1) est
+     remplacé par l'or foncé ; les panneaux sombres conservent l'or clair. */
+.practice__num,
+.practice__tag { color: #6E5C2C; }
+.aside-panel__title { color: var(--accent-text); }
+.aside-panel.on-dark .aside-panel__title,
+.on-dark .aside-panel__title { color: var(--accent-soft); }
+.aside-panel.on-dark li b,
+.on-dark .aside-panel li b { color: var(--accent-soft); }
+
+/* 51.8 — Bandeau de contact final : sur mobile, la ligne d'adresse
+   collait au titre. On rétablit un interligne de respiration et on
+   signale le dot doré comme purement décoratif (déjà aria-hidden). */
+@media (max-width: 719px) {
+  .mega__line--alt { margin-top: .55em; }
+  .mega__links { margin-top: 22px; }
+}
+.mega__line--alt { margin-top: clamp(.4em, 1.2vw, .7em); }
+
+/* 51.9 — Le bouton de contact de l'en-tête garde la couleur officielle
+   vert ardoise : la règle générique des boutons (0,3,0) l'emportait sur
+   la sienne (0,1,0). On rejoue l'identité au même poids. */
+.header .header__cta,
+.header .header__cta:not(.btn--ghost):not(.btn--ghost-light) {
+  background: var(--brand-green);
+  color: var(--ivory);
+  border-color: var(--brand-green);
+}
+.header .header__cta:hover,
+.header .header__cta:focus-visible,
+.header .header__cta:not(.btn--ghost):not(.btn--ghost-light):hover,
+.header .header__cta:not(.btn--ghost):not(.btn--ghost-light):focus-visible {
+  background: var(--brand-green-deep);
+  color: var(--ivory);
+  border-color: var(--brand-green-deep);
+}
+.header .header__cta .btn__arrow,
+.header .header__cta:not(.btn--ghost):not(.btn--ghost-light) .btn__arrow {
+  background: var(--brand-gold);
+  color: var(--ink-deep);
+}
+
+/* 51.10 — Sur la bande d'appel à l'action (fond encre), la pastille
+   d'intitulé reprend l'or clair de la charte : l'encre sur encre de la
+   règle générique la rendait invisible (contraste 1,0).
+   `.grain` est aussi la classe décorative des heroes CLAIRS : elle ne
+   doit pas hériter de ce traitement sombre. */
+.cta-band .eyebrow,
+.section--ink .eyebrow,
+.on-dark .eyebrow {
+  background: rgba(244, 240, 232, .1);
+  color: var(--accent-soft);
+}
+.cta-band .eyebrow::before,
+.section--ink .eyebrow::before,
+.on-dark .eyebrow::before { background: var(--accent-soft); }
+/* Numéros de section posés sur une surface encre. */
+.cta-band .section-index,
+.section--ink .section-index,
+.on-dark .section-index { color: var(--accent-soft); }
+
+/* 51.11 — La grille « Autres expertises » sur 5 éléments laissait une
+   cellule vide peinte en gris (le fond de la grille servait de filet).
+   Les filets passent sur les cartes : plus de case fantôme, quel que
+   soit le nombre d'éléments. */
+.related {
+  gap: 0;
+  background: transparent;
+  border-top: 1px solid var(--line-light-soft);
+  border-left: 1px solid var(--line-light-soft);
+}
+.related__item {
+  border-right: 1px solid var(--line-light-soft);
+  border-bottom: 1px solid var(--line-light-soft);
+}
+.section--ink .related { background: transparent; }
+.section--ink .related__item {
+  border-right: 1px solid var(--line-dark-soft);
+  border-bottom: 1px solid var(--line-dark-soft);
+}
+
+/* 51.12 — Deux finitions sur la grille « identifiez votre sujet » :
+   · les cartes se touchaient (gap ramené à 0 par le correctif 51.11) ;
+   · l'angle arrondi de chaque carte laissait apparaître le fond de la
+     section dans les coins — on garde les angles arrondis mais sans
+     filets, donc sans interstice visible. */
+.related { gap: clamp(14px, 1.2vw, 20px); border: 0; }
+.related__item { border: 0; background: var(--paper); }
+.related__item:hover { background: #fff; }
+.section--ink .related__item { background: var(--ink-2); }
+.section--ink .related__item:hover { background: var(--ink-3); }
+/* Variante « cartes » déjà arrondie et bordée. */
+.related--cards { gap: clamp(14px, 1.4vw, 20px); }
+.related--cards .related__item {
+  background: #fff;
+  border: 1px solid var(--line-light-soft);
+  border-radius: var(--r-md);
+}
+
+/* 51.13 — Passages sur fond encre : le texte courant, la légende de
+   références et les liens pastilles conservaient les tons papier
+   (ardoise, encre) et tombaient entre 1,0 et 3,5:1. On rétablit
+   l'ivoire et l'or clair de la charte, sans toucher aux panneaux
+   latéraux clairs des heroes. */
+.section--ink .body-text,
+.section--ink .archive__text { color: rgba(244, 240, 232, .78); }
+.section--ink .refs__caption { color: rgba(244, 240, 232, .65); }
+.section--ink .link-line,
+.sport .link-line {
+  color: var(--ivory);
+  border-color: var(--line-dark);
+}
+.section--ink .link-line:hover,
+.sport .link-line:hover { background: rgba(244, 240, 232, .08); }
+.section--ink .link-line svg,
+.sport .link-line svg { background: var(--ivory); stroke: var(--ink); }
+.section--ink .aside-panel__title,
+.section--ink .aside-panel li b { color: var(--accent-soft); }
+/* L'accroche de confiance du hero (fond encre profond) : 45 % d'ivoire
+   donnaient 4,1:1, juste sous le seuil. */
+.hero__trust-line,
+.hero__trust-label { color: rgba(244, 240, 232, .68); }
