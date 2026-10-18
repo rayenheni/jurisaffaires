@@ -14,13 +14,23 @@ function clearAuthAndRedirect() {
   redirectToLogin();
 }
 
+<<<<<<< HEAD
 // Verify token — only clear on 401/403, not on network errors
+=======
+// Verify token — only clear on 401 (our auth), not on 403 (E2B gateway) nor network
+>>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
 if (!token) {
   redirectToLogin();
 } else {
   fetch(API+'/api/auth/me', { headers:{ Authorization:'Bearer '+token } })
     .then(r=>{
+<<<<<<< HEAD
       if (r.status===401 || r.status===403) throw new Error('unauthorized');
+=======
+      if (r.status===401) throw new Error('unauthorized');
+      // 403 = E2B "Missing traffic access token" — ne pas déconnecter, c'est le proxy
+      if (r.status===403) throw new Error('network');
+>>>>>>> d252361 (fix(admin): ne pas deconnecter sur 403 E2B, message clair pour preview)
       if(!r.ok) throw new Error('network');
       return r.json();
     })
