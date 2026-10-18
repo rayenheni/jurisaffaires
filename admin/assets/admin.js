@@ -4,17 +4,48 @@ let CMS = null;
 let token = localStorage.getItem('ja_token');
 let user = JSON.parse(localStorage.getItem('ja_user')||'null');
 
-if (!token) location.href = 'login.html';
-else fetch(API+'/api/auth/me', { headers:{ Authorization:'Bearer '+token } })
-  .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
-  .then(u=>{ user=u; localStorage.setItem('ja_user', JSON.stringify(u)); renderUser(); })
-  .catch(()=>{ localStorage.removeItem('ja_token'); location.href='login.html'; });
-
-function renderUser(){
-  document.getElementById('userName').textContent = user?.name || user?.email || 'Admin';
-  document.getElementById('userEmail').textContent = user?.email || '';
+function redirectToLogin() {
+  // Only redirect if we are not already on login to avoid loops
+  if (!location.pathname.endsWith('login.html')) location.href = 'login.html';
 }
-renderUser();
+function clearAuthAndRedirect() {
+  localStorage.removeItem('ja_token');
+  localStorage.removeItem('ja_user');
+  redirectToLogin();
+}
+
+// Verify token — only clear on 401/403, not on network errors
+if (!token) {
+  redirectToLogin();
+} else {
+  fetch(API+'/api/auth/me', { headers:{ Authorization:'Bearer '+token } })
+    .then(r=>{
+      if (r.status===401 || r.status===403) throw new Error('unauthorized');
+      if(!r.ok) throw new Error('network');
+      return r.json();
+    })
+    .then(u=>{
+      user=u;
+      localStorage.setItem('ja_user', JSON.stringify(u));
+      const nm=document.getElementById('userName');
+      const em=document.getElementById('userEmail');
+      if(nm) nm.textContent = user?.name || user?.email || 'Admin';
+      if(em) em.textContent = user?.email || '';
+    })
+    .catch(e=>{
+      if (e.message==='unauthorized') {
+        clearAuthAndRedirect();
+      } else {
+        // Network / 500 : keep token, show banner but don't logout
+        console.warn('[admin] auth check failed:', e);
+        // still try to render with cached user
+        const nm=document.getElementById('userName');
+        const em=document.getElementById('userEmail');
+        if(nm) nm.textContent = user?.name || user?.email || 'Admin';
+        if(em) em.textContent = user?.email || '';
+      }
+    });
+}
 document.getElementById('logoutBtn').onclick=()=>{ localStorage.removeItem('ja_token'); localStorage.removeItem('ja_user'); location.href='login.html'; };
 
 const NAV = [
