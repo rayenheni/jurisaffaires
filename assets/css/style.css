@@ -1997,7 +1997,6 @@ a.contact-row__value:hover { color: var(--accent-soft); }
 .sticky-bar__btn svg { width: 15px; height: 15px; color: var(--accent-soft); }
 .sticky-bar__btn--accent { background: var(--accent); color: var(--ink-deep); }
 .sticky-bar__btn--accent svg { color: var(--ink-deep); }
-.sticky-bar__btn + .sticky-bar__btn { border-left: 1px solid rgba(244, 240, 232, .10); }
 .sticky-bar__btn:active { background: var(--ink-3); }
 .sticky-bar__btn--accent:active { background: var(--accent); }
 
