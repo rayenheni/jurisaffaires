@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Offline — JurisAffaires</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/admin.css">
+<style>
+.offline-banner{background:#FEF3C7;border:1px solid #F59E0B;color:#7C4A00;padding:10px 14px;border-radius:10px;margin-bottom:16px;font-size:.88rem}
+.offline-banner a{color:var(--green);font-weight:600}
+</style>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img src="../assets/img/logo-jurisaffaires-light.png" alt="JurisAffaires" width="210">
+      <span>Offline — sans serveur</span>
+    </div>
+    <nav class="sidebar__nav" id="nav"></nav>
+    <div class="sidebar__foot">
+      <div class="user-box"><div><b>Mode hors-ligne</b><br><span>Pas de serveur requis</span></div></div>
+      <a href="../index.html" class="btn btn--ghost btn--sm" style="flex:1;background:transparent;color:var(--ivory);border-color:rgba(244,240,232,.18);margin-top:10px;display:block;text-align:center">Voir le site</a>
+    </div>
+  </aside>
+  <div>
+    <header class="topbar">
+      <h1 id="pageTitle">Admin hors-ligne</h1>
+      <div class="topbar__actions">
+        <span id="status" class="kpi"></span>
+        <button id="exportBtn" class="btn btn--gold btn--sm">⬇ Exporter cms.json</button>
+        <button id="saveLocalBtn" class="btn btn--primary btn--sm">💾 Sauver local</button>
+      </div>
+    </header>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+<script>
+// Offline admin — lit data/cms.json statiquement, sauvegarde dans localStorage, exporte fichier
+const NAV = [
+  {id:'dashboard',label:'Tableau de bord',icon:'◧',group:'Aperçu'},
+  {id:'site',label:'Cabinet & coordonnées',icon:'⌖',group:'Site'},
+  {id:'navigation',label:'Navigation',icon:'≡',group:'Site'},
+  {id:'expertises',label:'Pôles d’expertise',icon:'◆',group:'Contenu'},
+  {id:'domaines',label:'Domaines (22)',icon:'⬔',group:'Contenu'},
+  {id:'equipe',label:'Équipe',icon:'◐',group:'Contenu'},
+  {id:'publications',label:'Publications',icon:'✎',group:'Contenu'},
+  {id:'references',label:'Références',icon:'★',group:'Contenu'},
+  {id:'export',label:'Exporter',icon:'⬇',group:'Système'},
+];
+let CMS=null;
+function hEsc(s){return String(s).replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]))}
+function card(t,d,b){return `<div class="card"><div class="card__head"><div><h2>${t}</h2>${d?`<p>${d}</p>`:''}</div></div>${b}</div>`}
+function toast(m,type='success'){const el=document.createElement('div');el.className=`alert alert--${type}`;el.style.position='fixed';el.style.right='18px';el.style.bottom='18px';el.style.zIndex='999';el.textContent=m;document.body.appendChild(el);setTimeout(()=>el.remove(),3500)}
+function navHTML(a){let h='',lg='';for(const it of NAV){if(it.group!==lg){h+=`<div class="nav-group"><div class="nav-group__title">${it.group}</div></div>`;lg=it.group}h+=`<a class="${it.id===a?'nav-link is-active':'nav-link'}" href="#${it.id}"><span>${it.icon}</span> ${it.label}</a>`}return h}
+const main=document.getElementById('main'), titleEl=document.getElementById('pageTitle');
+function setActive(id){document.getElementById('nav').innerHTML=navHTML(id)}
+async function loadCMS(){
+  const cached=localStorage.getItem('ja_cms_offline');
+  if(cached){ try{ CMS=JSON.parse(cached); return CMS }catch(e){} }
+  const r=await fetch('../data/cms.json'); CMS=await r.json(); localStorage.setItem('ja_cms_offline', JSON.stringify(CMS)); return CMS;
+}
+function saveLocal(){ localStorage.setItem('ja_cms_offline', JSON.stringify(CMS)); document.getElementById('status').textContent='✔ Sauvé local'; setTimeout(()=>document.getElementById('status').textContent='',2000); toast('Sauvé dans le navigateur') }
+function exportCMS(){
+  const blob=new Blob([JSON.stringify(CMS,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='cms.json'; a.click(); URL.revokeObjectURL(url); toast('cms.json téléchargé — place-le dans /data puis Reconstruis')
+}
+document.getElementById('exportBtn').onclick=exportCMS;
+document.getElementById('saveLocalBtn').onclick=saveLocal;
+
+async function router(){
+  const hash=location.hash.replace('#','')||'dashboard';
+  setActive(hash);
+  if(!CMS) await loadCMS();
+  if(hash==='dashboard') viewDashboard();
+  else if(hash==='site') viewSite();
+  else if(hash==='navigation') viewNav();
+  else if(hash==='expertises') viewExpertises();
+  else if(hash==='domaines') viewDomaines();
+  else if(hash==='equipe') viewEquipe();
+  else if(hash==='publications') viewPubs();
+  else if(hash==='references') viewRefs();
+  else if(hash==='export') viewExport();
+  else viewDashboard();
+}
+function viewDashboard(){
+  titleEl.textContent='Admin hors-ligne';
+  const s=CMS.site;
+  main.innerHTML=`<div class="offline-banner">⚠️ Preview E2B bloqué (403 token). <b>Cette version fonctionne sans serveur</b> — modifie ici, clique <b>Exporter cms.json</b> et remplace <code>data/cms.json</code> sur ton VPS, puis <code>python3 tools/build_pages.py</code>.</div>
+  <div class="stat-row">
+    <div class="stat"><b>43</b><span>Pages</span></div>
+    <div class="stat"><b>${CMS.team.length}</b><span>Avocats</span></div>
+    <div class="stat"><b>${CMS.publications.length}</b><span>Publications</span></div>
+    <div class="stat"><b>${CMS.pillars.length+1}</b><span>Pôles</span></div>
+  </div>
+  <div style="margin-top:16px" class="grid grid--2">
+    ${card('Raccourcis',null,`<div style="display:flex;flex-wrap:wrap;gap:8px"><a class="btn btn--primary btn--sm" href="#site">Coordonnées</a><a class="btn btn--ghost btn--sm" href="#equipe">Équipe</a><a class="btn btn--ghost btn--sm" href="#publications">Publier</a><a class="btn btn--ghost btn--sm" href="#export">Exporter</a></div><div class="divider"></div><p class="kpi">Site: <b>${hEsc(s.SITE_URL)}</b><br>${hEsc(s.ADDRESS_1)} ${hEsc(s.ADDRESS_2)} • ${hEsc(s.EMAIL)} • ${hEsc(s.PHONE_MAIN)}</p>`)}
+    ${card('Comment ça marche (offline)',null,`<ol style="margin:0;padding-left:18px;font-size:.9rem;line-height:1.7"><li>Modifie dans cet admin (stocké dans ton navigateur)</li><li><b>Exporter cms.json</b> → télécharge</li><li>Remplace <code>data/cms.json</code> sur le serveur</li><li><code>python3 tools/build_pages.py</code> → 43 pages</li></ol><div class="alert alert--info" style="margin-top:12px">Aucun mot de passe — accès local uniquement. Pour la version serveur complète, déploie sur ton VPS sans restriction E2B.</div>`)}
+  </div>`;
+}
+function viewSite(){
+  titleEl.textContent='Cabinet & coordonnées';
+  const s=CMS.site;
+  main.innerHTML=card('Identité',null,`
+    <div class="form-grid">
+      <div class="grid grid--2"><label>Nom court<input id="f_NAME" value="${hEsc(s.NAME)}"></label><label>Nom légal<input id="f_LEGAL" value="${hEsc(s.LEGAL_NAME)}"></label></div>
+      <label>URL<input id="f_URL" value="${hEsc(s.SITE_URL)}"></label>
+      <div class="grid grid--2"><label>Adresse 1<input id="f_A1" value="${hEsc(s.ADDRESS_1)}"></label><label>Adresse 2<input id="f_A2" value="${hEsc(s.ADDRESS_2)}"></label></div>
+      <label>MAP_URL<input id="f_MAP" value="${hEsc(s.MAP_URL)}"></label>
+      <div class="grid grid--2"><label>Tél 1<input id="f_P1" value="${hEsc(s.PHONE_MAIN)}"></label><label>Tél 2<input id="f_P2" value="${hEsc(s.PHONE_2)}"></label></div>
+      <div class="grid grid--2"><label>Tél 3<input id="f_P3" value="${hEsc(s.PHONE_3)}"></label><label>Fax<input id="f_FAX" value="${hEsc(s.FAX)}"></label></div>
+      <div class="grid grid--2"><label>Email<input id="f_EMAIL" value="${hEsc(s.EMAIL)}"></label><label>Horaires<input id="f_HOURS" value="${hEsc(s.HOURS)}"></label></div>
+    </div>`);
+  const v=id=>document.getElementById(id).value;
+  main.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{
+    CMS.site.NAME=v('f_NAME'); CMS.site.LEGAL_NAME=v('f_LEGAL'); CMS.site.SITE_URL=v('f_URL'); CMS.site.ADDRESS_1=v('f_A1'); CMS.site.ADDRESS_2=v('f_A2'); CMS.site.MAP_URL=v('f_MAP'); CMS.site.PHONE_MAIN=v('f_P1'); CMS.site.PHONE_2=v('f_P2'); CMS.site.PHONE_3=v('f_P3'); CMS.site.FAX=v('f_FAX'); CMS.site.EMAIL=v('f_EMAIL'); CMS.site.HOURS=v('f_HOURS'); saveLocal();
+  }));
+}
+function viewNav(){
+  titleEl.textContent='Navigation';
+  const rows=CMS.nav.map((n,i)=>`<tr><td>${i+1}</td><td><input data-i="${i}" data-k="href" value="${hEsc(n.href)}" class="input" style="width:100%"></td><td><input data-i="${i}" data-k="label" value="${hEsc(n.label)}" class="input" style="width:100%"></td><td><button class="btn btn--ghost btn--sm" onclick="CMS.nav.splice(${i},1);viewNav();saveLocal()">Suppr</button></td></tr>`).join('');
+  main.innerHTML=card('Menu principal',null,`<div class="table-wrap"><table><thead><tr><th>#</th><th>href</th><th>Label</th><th></th></tr></thead><tbody>${rows}</tbody></table></div><button class="btn btn--ghost btn--sm" style="margin-top:10px" onclick="CMS.nav.push({href:'nouveau.html',label:'Nouveau'});viewNav();saveLocal()">+ Ajouter</button>`);
+  main.querySelectorAll('input[data-i]').forEach(inp=>inp.addEventListener('input',e=>{const i=parseInt(e.target.dataset.i);CMS.nav[i][e.target.dataset.k]=e.target.value;saveLocal()}));
+}
+function viewExpertises(){
+  titleEl.textContent='Pôles';
+  main.innerHTML=CMS.pillars.map((p,i)=>`<div class="card" style="border-left:4px solid var(--green)"><h3>${hEsc(p.title)} <small>${hEsc(p.slug)}</small></h3><div class="form-grid"><label>Titre<input data-p="${i}" data-f="title" value="${hEsc(p.title)}"></label><label>Hero<input data-p="${i}" data-f="hero" value="${hEsc(p.hero)}"></label><label>Lede<input data-p="${i}" data-f="lede" value="${hEsc(p.lede)}"></label><label>Items (ligne par ligne)<textarea data-p="${i}" data-f="items" rows="4">${hEsc(p.items.join('\n'))}</textarea></label></div></div>`).join('')+`<div class="card" style="border-left:4px solid var(--gold)"><h3>Droit du sport</h3><div class="form-grid"><label>Titre<input id="sport_title" value="${hEsc(CMS.sport.title)}"></label><label>Hero<input id="sport_hero" value="${hEsc(CMS.sport.hero)}"></label></div></div>`;
+  main.querySelectorAll('[data-p]').forEach(el=>el.addEventListener('input',e=>{const i=parseInt(e.target.dataset.p);const f=e.target.dataset.f;if(f==='items')CMS.pillars[i][f]=e.target.value.split('\n').filter(Boolean);else CMS.pillars[i][f]=e.target.value;saveLocal()}));
+  document.getElementById('sport_title')?.addEventListener('input',e=>{CMS.sport.title=e.target.value;saveLocal()});
+  document.getElementById('sport_hero')?.addEventListener('input',e=>{CMS.sport.hero=e.target.value;saveLocal()});
+}
+function viewDomaines(){
+  titleEl.textContent='Domaines (22)';
+  const all=[...CMS.pillars, CMS.sport]; let html='';
+  for(const k of Object.keys(CMS.practices).sort()){const pole=all[parseInt(k)];const list=CMS.practices[k]||[]; html+=`<div class="card"><h3>${hEsc(pole?.title||k)}</h3>${list.map((d,i)=>`<div style="border:1px solid var(--line-soft);padding:10px;border-radius:10px;margin:8px 0"><label>Titre<input data-k="${k}" data-i="${i}" data-f="title" value="${hEsc(d.title)}" class="input"></label><label>Tag<input data-k="${k}" data-i="${i}" data-f="tag" value="${hEsc(d.tag)}" class="input"></label><label>Desc<textarea data-k="${k}" data-i="${i}" data-f="desc" rows="2" class="input">${hEsc(d.desc)}</textarea></label><button class="btn btn--ghost btn--sm" onclick="CMS.practices['${k}'].splice(${i},1);viewDomaines();saveLocal()">Suppr</button></div>`).join('')}<button class="btn btn--ghost btn--sm" onclick="CMS.practices['${k}'].push({title:'Nouveau',desc:'',tag:'Conseil'});viewDomaines();saveLocal()">+ Domaine</button></div>`}
+  main.innerHTML=html;
+  main.querySelectorAll('[data-k]').forEach(el=>el.addEventListener('input',e=>{CMS.practices[e.target.dataset.k][parseInt(e.target.dataset.i)][e.target.dataset.f]=e.target.value;saveLocal()}));
+}
+function viewEquipe(){
+  titleEl.textContent='Équipe';
+  main.innerHTML=CMS.team.map((m,i)=>`<div class="card" style="border-left:4px solid var(--gold)"><h3>${hEsc(m.first)} ${hEsc(m.last)} — ${hEsc(m.role)}</h3><div class="form-grid"><div class="grid grid--2"><label>Prénom<input data-m="${i}" data-f="first" value="${hEsc(m.first)}"></label><label>Nom<input data-m="${i}" data-f="last" value="${hEsc(m.last)}"></label></div><label>Rôle<input data-m="${i}" data-f="role" value="${hEsc(m.role)}"></label><label>Bio<textarea data-m="${i}" data-f="bio" rows="3">${hEsc(m.bio)}</textarea></label><label>Tags (ligne par ligne)<textarea data-m="${i}" data-f="tags" rows="3">${hEsc(m.tags.join('\n'))}</textarea></label></div><button class="btn btn--ghost btn--sm" onclick="CMS.team.splice(${i},1);viewEquipe();saveLocal()">Suppr</button></div>`).join('')+`<button class="btn btn--ghost btn--sm" onclick="CMS.team.push({first:'Nouveau',last:'AVOCAT',role:'Avocat',img:'slim-bouderbala.jpg',alt:'',bio:'',tags:[],facts:[],expertises:[0],slug:'avocat-nouveau.html',num:'05'});viewEquipe();saveLocal()">+ Avocat</button>`;
+  main.querySelectorAll('[data-m]').forEach(el=>el.addEventListener('input',e=>{const i=parseInt(e.target.dataset.m);const f=e.target.dataset.f;let v=e.target.value;if(f==='tags')CMS.team[i][f]=v.split('\n').filter(Boolean);else CMS.team[i][f]=v;saveLocal()}));
+}
+function viewPubs(){
+  titleEl.textContent='Publications';
+  main.innerHTML=CMS.publications.map((p,i)=>`<div class="card" style="border-left:4px solid var(--green-deep)"><h3>${hEsc(p.title)}</h3><div class="form-grid"><label>Titre<input data-p="${i}" data-f="title" value="${hEsc(p.title)}"></label><label>Kicker<textarea data-p="${i}" data-f="kicker" rows="2">${hEsc(p.kicker)}</textarea></label><label>Résumé<textarea data-p="${i}" data-f="text" rows="2">${hEsc(p.text)}</textarea></label></div><button class="btn btn--ghost btn--sm" onclick="CMS.publications.splice(${i},1);viewPubs();saveLocal()">Suppr</button></div>`).join('')+`<button class="btn btn--ghost btn--sm" onclick="CMS.publications.push({title:'Nouveau',short_title:'Nouveau',slug:'pub-nouveau.html',category:'Droit',date:'2026',author:'Me Slim Bouderbala',author_slug:'avocat-slim-bouderbala.html',author_role:'Avocat',author_img:'slim-bouderbala.jpg',read_time:'5 min',kicker:'',text:'',original_url:'',takeaways:[],sections:[]});viewPubs();saveLocal()">+ Publication</button>`;
+  main.querySelectorAll('[data-p]').forEach(el=>el.addEventListener('input',e=>{CMS.publications[parseInt(e.target.dataset.p)][e.target.dataset.f]=e.target.value;saveLocal()}));
+}
+function viewRefs(){
+  titleEl.textContent='Références';
+  const rows=CMS.clients.map((c,i)=>`<tr><td><img src="../assets/img/clients/${hEsc(c.file)}" style="height:28px"></td><td><input data-c="${i}" data-f="file" value="${hEsc(c.file)}" class="input"></td><td><input data-c="${i}" data-f="alt" value="${hEsc(c.alt)}" class="input"></td><td><button class="btn btn--ghost btn--sm" onclick="CMS.clients.splice(${i},1);viewRefs();saveLocal()">Suppr</button></td></tr>`).join('');
+  main.innerHTML=card('Logos',null,`<div class="table-wrap"><table><thead><tr><th>Img</th><th>Fichier</th><th>Alt</th><th></th></tr></thead><tbody>${rows}</tbody></table></div><button class="btn btn--ghost btn--sm" style="margin-top:10px" onclick="CMS.clients.push({file:'nouveau.png',alt:'Nouveau'});viewRefs();saveLocal()">+ Logo</button>`);
+  main.querySelectorAll('[data-c]').forEach(el=>el.addEventListener('input',e=>{CMS.clients[parseInt(e.target.dataset.c)][e.target.dataset.f]=e.target.value;saveLocal()}));
+}
+function viewExport(){
+  titleEl.textContent='Exporter';
+  main.innerHTML=card('Exporter cms.json',null,`<p class="kpi">Le fichier contient tout le site. Télécharge, remplace <code>data/cms.json</code> sur le VPS, puis <code>python3 tools/build_pages.py</code></p><pre style="max-height:300px;overflow:auto;background:#FCFBF8;border:1px solid var(--line-soft);padding:12px;border-radius:10px;font-size:.75rem">${hEsc(JSON.stringify(CMS,null,2).slice(0,4000))}…</pre><button class="btn btn--primary" onclick="exportCMS()">⬇ Télécharger cms.json complet</button> <button class="btn btn--ghost" onclick="localStorage.removeItem('ja_cms_offline');location.reload()">Réinitialiser</button>`);
+}
+window.addEventListener('hashchange',router);
+window.addEventListener('DOMContentLoaded',router);
+</script>
+</body>
+</html>

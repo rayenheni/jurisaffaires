@@ -1,8 +1,9 @@
 # JurisAffaires — Maquette de refonte du site
 
-Démonstration statique du nouveau site **JurisAffaires Avocats & Conseils — Tunis**.
-17 pages, HTML + CSS + JavaScript natif, **aucune étape de build** : le site fonctionne
-en ouvrant directement `index.html`.
+Site statique du cabinet **JurisAffaires Avocats & Conseils — Tunis**.
+**43 pages**, HTML + CSS + JavaScript natif, **aucune étape de build** : le site
+fonctionne en ouvrant directement `index.html`, et se déploie en copiant le dossier
+tel quel sur n'importe quel hébergement statique.
 
 ---
 
@@ -19,7 +20,7 @@ Le dossier `tools/` est facultatif : il ne sert qu'à régénérer les pages sta
 
 ---
 
-## 2. Les 41 pages
+## 2. Les 43 pages
 
 **Accueil**
 - `index.html` — page d'accueil : hero, positionnement « 40+ », 4 piliers + Droit du Sport,
@@ -47,9 +48,16 @@ Le dossier `tools/` est facultatif : il ne sert qu'à régénérer les pages sta
 - `publications.html` — les deux seules publications existantes
 - `contact.html` — formulaire, plan, coordonnées, réponses fréquentes
 
+**Domaines** (22 pages — une par domaine réel du cabinet, reliées à leur pôle)
+- `domaine-*.html` — ex. `domaine-droit-fiscal.html`, `domaine-droit-maritime.html`…
+
+**Références**
+- `references.html` — 12 logos clients, trois familles de références
+
 **Mentions**
 - `mentions-legales.html`
 - `politique-de-confidentialite.html`
+- `404.html` — page d'erreur, sans canonical
 
 ---
 
@@ -73,7 +81,8 @@ jurisaffaires-demo/
 │   ├── js/main.js                 ← interactions légères (≈ 235 lignes)
 │   ├── img/
 │   │   ├── hero-architecture.jpg  ← texture sombre des heroes
-│   │   ├── logo.svg  logo-mark.png
+│   │   ├── logo-jurisaffaires.png        ← logo officiel (en-tête)
+│   │   ├── logo-jurisaffaires-light.png  ← logo officiel version claire (pied de page)
 │   │   ├── team/                   ← 4 portraits authentiques
 │   │   └── clients/               ← 12 logos de clients réels
 │
@@ -92,7 +101,7 @@ jurisaffaires-demo/
 | --- | --- |
 | Bannière slider avec messages qui se chevauchent | **Un seul hero**, un seul message, une seule action principale |
 | 15 domaines listés à plat, sans hiérarchie | **5 pôles structurés**, chacun avec sa page, ses matières et son CTA |
-| Navigation incohérente d'une page à l'autre | **Navigation identique sur les 17 pages**, plus un sous-menu contextuel |
+| Navigation incohérente d'une page à l'autre | **Navigation identique sur les 43 pages**, plus un sous-menu contextuel |
 | Page contact sans action forte | **Formulaire structuré**, plan, coordonnées, « Ouvrir l'itinéraire », réponses fréquentes |
 | « Copyright 2018 / Copyright 2023 » contradictoires | Mention unique et cohérente : `© 2026 JurisAffaires` |
 | Équipe sans fiche détaillée | **4 fiches de profil** complètes, liées depuis toutes les pages |
@@ -105,8 +114,13 @@ jurisaffaires-demo/
 **Institutionnel, premium, sobre.** Comparable à un cabinet de conseil international
 plutôt qu'à un modèle de site d'avocat local.
 
-- **Palette** — encre bleu nuit presque noire `#0B1620`, ivoire chaud `#FBF8F2`,
-  gris pierre `#8A8579`, un seul accent bronze `#A2754A`. Rien d'autre.
+- **Palette officielle** — vert ardoise `#4F6C62` (logo « JURIS », CTA, pastilles),
+  or champagne `#AE9A63` (logo « AFFAIRES », accents, filets), encre `#08110E`
+  (surfaces sombres, textes), ivoire chaud `#FBF8F2`. Pour le texte sur fond clair,
+  l'or champagne est décliné en `#7A6733` (5,3:1) afin de rester lisible.
+- **Logos** — `assets/img/logo-jurisaffaires.png` (version fond clair, balance verte
+  et or) dans l'en-tête flottant, `logo-jurisaffaires-light.png` (version claire)
+  dans le pied de page sombre, sur les 43 pages.
 - **Typographie** — une serif de titrage (Playfair Display) pour les titres,
   une sans-serif grotesque (Inter) pour le texte courant. Deux familles, jamais plus.
 - **Composition** — beaucoup de vide, une idée par écran, des filets fins plutôt que
@@ -180,7 +194,7 @@ Au passage, la navigation a été réalignée : le menu mobile annonçait six en
 (dont Références) quand le bureau n'en montrait que cinq.
 
 
-Le site compte **5 821 mots sur 17 pages**, soit environ 340 mots par page.
+Le site compte **≈ 25 000 mots sur 43 pages**, soit environ 580 mots par page.
 C'est délibéré : sur ce type de site, tout ce qui n'est pas une information
 utile devient du bruit.
 

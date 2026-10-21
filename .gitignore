@@ -1,3 +1,13 @@
+# CMS runtime (keep cms.json tracked, ignore secrets)
+.env
+node_modules/
+npm-debug.log
+data/messages.json
+data/users.json
+data/media.json
+assets/img/uploads/*
+!.gitkeep
+
 # Temporary test images in root
 /*.png
 

@@ -38,6 +38,11 @@ FAX        = "(+216) 71 256 737"
 EMAIL      = "avocats-conseils@jurisaffaires.net"
 HOURS      = "Lundi au vendredi — 8h00 à 18h30"
 
+# Lien cartographique unique : la requête reprend mot pour mot l'adresse
+# postale du cabinet. Toute adresse affichée renvoie donc au même point.
+MAP_URL = ("https://www.google.com/maps/search/?api=1&amp;query="
+           "45+Rue+Ali+Darghouth+1001+Tunis+Tunisie")
+
 NAV = [
     ("le-cabinet.html",    "Le Cabinet"),
     ("expertises.html",    "Expertises"),
@@ -46,6 +51,54 @@ NAV = [
     ("references.html",    "Références"),
     ("contact.html",       "Contact"),
 ]
+
+# ── Chargement du CMS JSON (si présent, écrase les constantes ci-dessus) ──
+# Permet à l'espace admin de piloter tout le contenu sans toucher au code.
+_CMS_PATH = os.path.join(ROOT, "data", "cms.json")
+try:
+    import json as _json
+    if os.path.exists(_CMS_PATH):
+        _cms = _json.load(open(_CMS_PATH, encoding="utf-8"))
+        _site = _cms.get("site", {})
+        NAME       = _site.get("NAME", NAME)
+        LEGAL_NAME = _site.get("LEGAL_NAME", LEGAL_NAME)
+        SITE_URL   = _site.get("SITE_URL", SITE_URL)
+        ADDRESS_1  = _site.get("ADDRESS_1", ADDRESS_1)
+        ADDRESS_2  = _site.get("ADDRESS_2", ADDRESS_2)
+        PHONE_MAIN = _site.get("PHONE_MAIN", PHONE_MAIN)
+        PHONE_2    = _site.get("PHONE_2", PHONE_2)
+        PHONE_3    = _site.get("PHONE_3", PHONE_3)
+        FAX        = _site.get("FAX", FAX)
+        EMAIL      = _site.get("EMAIL", EMAIL)
+        HOURS      = _site.get("HOURS", HOURS)
+        MAP_URL    = _site.get("MAP_URL", MAP_URL)
+        if "nav" in _cms:
+            NAV = [(x["href"], x["label"]) for x in _cms["nav"]]
+        if "expertise_subnav" in _cms:
+            EXPERTISE_SUBNAV = [(x["href"], x["label"]) for x in _cms["expertise_subnav"]]
+        if "pillars" in _cms:
+            PILLARS = _cms["pillars"]
+        if "sport" in _cms:
+            SPORT = _cms["sport"]
+        if "pillars" in _cms and "sport" in _cms:
+            ALL_EXPERTISES = PILLARS + [SPORT]
+        if "team" in _cms:
+            TEAM = _cms["team"]
+        if "clients" in _cms:
+            CLIENTS = [(x["file"], x["alt"]) for x in _cms["clients"]]
+        if "publications" in _cms:
+            PUBLICATIONS = _cms["publications"]
+        if "stats_fixed" in _cms:
+            STATS_FIXED = [(x["value"], x["label"]) for x in _cms["stats_fixed"]]
+        if "practices" in _cms:
+            PRACTICES = {int(k): [(p["title"], p["desc"], p["tag"]) for p in v] for k,v in _cms["practices"].items()}
+        if "engagements" in _cms:
+            ENGAGEMENTS = {int(k): [(e["title"], e["desc"]) for e in v] for k,v in _cms["engagements"].items()}
+        if "all_domains" in _cms:
+            ALL_DOMAINS = _cms["all_domains"]
+except Exception as _e:
+    # En cas de JSON corrompu on garde les valeurs codées en dur
+    print(f"[cms] chargement ignoré: {_e}")
 
 def slugify(text):
     text = text.replace("&amp;", " et ").replace("&", " et ")
@@ -392,9 +445,9 @@ def head(title, desc, extra="", og_title=None, og_url=None):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#0B1620">
+<meta name="theme-color" content="#08110E">
 <link rel="canonical" href="{SITE_URL}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' fill='%230B1620'/%3E%3Cg fill='none' stroke='%23C29A6C' stroke-width='1.4'%3E%3Crect x='4' y='4' width='26' height='26'/%3E%3Cpath d='M4 17h26M17 4v26' opacity='.45'/%3E%3C/g%3E%3Crect x='17' y='17' width='13' height='13' fill='%23C29A6C'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='7' fill='%234F6C62'/%3E%3Cg fill='none' stroke='%23AE9A63' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M11 7v16a3 3 0 0 0 3 3h3M6.5 13h9M8 13l-3 6h6zM24 8v13M19.5 12h9M21 12l-3 5h6zM24 8l3 4h-6z'/%3E%3C/g%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JurisAffaires">
 <meta property="og:locale" content="fr_TN">
@@ -424,9 +477,18 @@ def head(title, desc, extra="", og_title=None, og_url=None):
 
 
 def header(active=""):
-    links = "\n".join(
-        f'        <a class="nav__link{" is-active" if href == active else ""}" href="{href}">{label}</a>'
-        for href, label in NAV)
+    def nav_link(href, label):
+        cls = " is-active" if href == active else ""
+        cur = ' aria-current="page"' if href == active else ""
+        return f'        <a class="nav__link{cls}" href="{href}"{cur}>{label}</a>'
+
+    links = "\n".join(nav_link(href, label) for href, label in NAV)
+
+    def mobile_item(i, href, label):
+        cur = ' aria-current="page"' if href == active else ""
+        return (f'      <li class="mobile-menu__item"><a class="mobile-menu__link"'
+                f' href="{href}" style="animation-delay:.{i * 6 + 6:02d}s"{cur}>'
+                f'<span aria-hidden="true">{i + 1:02d}</span>{label}</a></li>')
     return f"""
 <header class="header" id="header">
   <div class="container">
@@ -462,17 +524,17 @@ def header(active=""):
   </div>
 </header>
 
-<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menu de navigation" aria-hidden="true">
   <nav aria-label="Navigation mobile">
     <ul class="mobile-menu__list">
-{chr(10).join(f'      <li class="mobile-menu__item"><a class="mobile-menu__link" href="{h}" style="animation-delay:.{i * 6 + 6:02d}s"><span>{i + 1:02d}</span>{l}</a></li>' for i, (h, l) in enumerate(NAV))}
+{chr(10).join(mobile_item(i, h, l) for i, (h, l) in enumerate(NAV))}
     </ul>
   </nav>
 
   <div class="mobile-menu__foot">
     <dl class="mobile-menu__contact">
       <dt>Adresse</dt>
-      <dd>{ADDRESS_1} — {ADDRESS_2.replace(' — Tunisie', '')}</dd>
+      <dd><a href="{MAP_URL}" target="_blank" rel="noopener">{ADDRESS_1} — {ADDRESS_2.replace(' — Tunisie', '')}</a></dd>
       <dt>Téléphone</dt>
       <dd><a href="tel:+21671256751">{PHONE_MAIN}</a></dd>
       <dt>Courriel</dt>
@@ -561,7 +623,7 @@ def footer():
       <div class="footer__col">
         <h3>Contact</h3>
         <ul>
-          <li>{ADDRESS_1}<br>{ADDRESS_2}</li>
+          <li><a href="{MAP_URL}" target="_blank" rel="noopener">{ADDRESS_1}<br>{ADDRESS_2}</a></li>
           <li><a href="tel:+21671256751">{PHONE_MAIN}</a></li>
           <li><a href="tel:+21671256752">{PHONE_2}</a></li>
           <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
@@ -573,18 +635,16 @@ def footer():
     <div class="footer__bottom">
       <p class="footer__copy">
         © <span id="year">2026</span> <b>{LEGAL_NAME}</b> — Tous droits réservés.
-        <span class="footer__demo">Maquette de refonte — démonstration.</span>
       </p>
       <nav class="footer__legal" aria-label="Liens légaux">
         <a href="mentions-legales.html">Mentions légales</a>
         <a href="politique-de-confidentialite.html">Politique de confidentialité</a>
-        <a href="{SITE_URL}" target="_blank" rel="noopener">Voir le site en ligne</a>
       </nav>
     </div>
   </div>
 </footer>
 
-<div class="sticky-bar" id="stickyBar">
+<nav class="sticky-bar" id="stickyBar" aria-label="Actions rapides" aria-hidden="true" inert>
   <a class="sticky-bar__btn" href="tel:+21671256751">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
       <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
@@ -592,7 +652,7 @@ def footer():
     Appeler
   </a>
   <a class="sticky-bar__btn sticky-bar__btn--accent" href="contact.html">Prendre contact</a>
-</div>
+</nav>
 
 <script src="assets/js/main.js?v={JS_V}"></script>
 </body>
@@ -637,7 +697,7 @@ def write(name, html):
     if name == "404.html":
         html = html.replace('<link rel="canonical" href="%s">' % SITE_URL, "", 1)
     else:
-        url = SITE_URL + "/" if name == "index.html" else SITE_URL + "/" + name
+        url = SITE_URL if name == "index.html" else SITE_URL + name
         html = html.replace(
             '<link rel="canonical" href="%s">' % SITE_URL,
             '<link rel="canonical" href="%s">' % url, 1)
@@ -728,11 +788,11 @@ def member_card(m):
     tags = tag_list(m, 10)
     return f"""
         <article class="member" data-reveal="fade">
-          <a class="member__photo" href="{m['slug']}" aria-label="Voir le profil de Maître {m['first']} {m['last']}">
+          <a class="member__photo" href="{m['slug']}">
             <span class="member__num">{m['num']}</span>
             <img src="assets/img/team/{m['img']}" alt="{m['alt']}" width="500" height="500" loading="lazy">
           </a>
-          <h3 class="member__name"><span>Maître</span><a href="{m['slug']}">{m['first']} {m['last']}</a></h3>
+          <h2 class="member__name"><span>Maître</span><a href="{m['slug']}">{m['first']} {m['last']}</a></h2>
           <p class="member__role">{m['role']}</p>
           <ul class="member__tags">
 {tags}
@@ -1616,6 +1676,7 @@ def build_publications():
 def build_publication_detail(pub):
     others = [p for p in PUBLICATIONS if p["slug"] != pub["slug"]]
     other_cards = "\n".join(f"""
+      <article class="archive__item-wrap">
       <a class="archive__item" href="{p['slug']}">
         <p class="archive__meta"><span>{p['category']}</span><i></i><span>{p['date']}</span><i></i><span>{p['author']}</span></p>
         <div>
@@ -1623,7 +1684,8 @@ def build_publication_detail(pub):
           <p class="archive__text">{p['kicker']}</p>
           <span class="link-line">Lire l'article {ARROW}</span>
         </div>
-      </a>""" for p in others)
+      </a>
+      </article>""" for p in others)
 
     takeaway_items = "\n".join(f"<li>{t}</li>" for t in pub["takeaways"])
 
@@ -1692,7 +1754,7 @@ def build_publication_detail(pub):
         <div class="article__author-box">
           <img src="assets/img/team/{pub['author_img']}" alt="{pub['author']}" width="76" height="76">
           <div>
-            <h4>Auteur de l'analyse</h4>
+            <h3>Auteur de l'analyse</h3>
             <p><strong>{pub['author']}</strong> — {pub['author_role']}. Avocat inscrit au Barreau de Tunis, intervenant au sein du cabinet JurisAffaires.</p>
             <a class="link-line" href="{pub['author_slug']}">Consulter son profil &amp; expertises {ARROW}</a>
           </div>
@@ -1816,11 +1878,23 @@ def build_contact():
         </p>
 
         <form class="form" id="contactForm" novalidate data-reveal style="--reveal-delay:100ms">
-          <p class="form__feedback" role="status" aria-live="polite" hidden></p>
+          <p class="form__hint">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+          <div class="form__feedback" id="formFeedback" role="alert" aria-live="assertive" hidden></div>
+          <div class="form__success" id="formSuccess" role="status" aria-live="polite" tabindex="-1" hidden>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.5L16 9.5"/></svg>
+            <div>
+              <b>Votre demande est prête à être envoyée.</b>
+              Votre messagerie s'ouvre avec le message pré-rempli. Si rien ne s'ouvre,
+              écrivez à <a href="mailto:{EMAIL}">{EMAIL}</a> ou appelez le
+              <a href="tel:+21671256751">{PHONE_MAIN}</a>.
+            </div>
+          </div>
           <div class="form__row form__row--2">
             <div class="field">
-              <label for="f-nom">Nom et prénom <span>*</span></label>
-              <input id="f-nom" name="nom" type="text" autocomplete="name" placeholder="Votre nom" required>
+              <label for="f-nom">Nom et prénom <span aria-hidden="true">*</span><span class="sr-only"> (obligatoire)</span></label>
+              <input id="f-nom" name="nom" type="text" autocomplete="name" placeholder="Votre nom"
+                     required minlength="2" aria-describedby="err-nom">
+              <p class="field__error" id="err-nom" hidden></p>
             </div>
             <div class="field">
               <label for="f-societe">Société</label>
@@ -1829,17 +1903,21 @@ def build_contact():
           </div>
           <div class="form__row form__row--2">
             <div class="field">
-              <label for="f-email">Adresse e-mail <span>*</span></label>
-              <input id="f-email" name="email" type="email" autocomplete="email" placeholder="vous@societe.tn" required>
+              <label for="f-email">Adresse e-mail <span aria-hidden="true">*</span><span class="sr-only"> (obligatoire)</span></label>
+              <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email"
+                     placeholder="vous@societe.tn" required aria-describedby="err-email">
+              <p class="field__error" id="err-email" hidden></p>
             </div>
             <div class="field">
               <label for="f-tel">Téléphone</label>
-              <input id="f-tel" name="tel" type="tel" autocomplete="tel" placeholder="+216">
+              <input id="f-tel" name="tel" type="tel" autocomplete="tel" inputmode="tel"
+                     placeholder="+216 71 256 751" pattern="[\\d\\s+\\(\\)\\.\\/\\-]{{8,25}}" aria-describedby="err-tel">
+              <p class="field__error" id="err-tel" hidden></p>
             </div>
           </div>
           <div class="field">
-            <label for="f-sujet">Sujet du dossier <span>*</span></label>
-            <select id="f-sujet" name="sujet" required>
+            <label for="f-sujet">Sujet du dossier <span aria-hidden="true">*</span><span class="sr-only"> (obligatoire)</span></label>
+            <select id="f-sujet" name="sujet" required aria-describedby="err-sujet">
               <option value="">Sélectionnez une expertise</option>
               <option>Droit des affaires</option>
               <option>Banque, finance &amp; assurances</option>
@@ -1848,14 +1926,17 @@ def build_contact():
               <option>Droit du sport</option>
               <option>Autre sujet</option>
             </select>
+            <p class="field__error" id="err-sujet" hidden></p>
           </div>
           <div class="field">
-            <label for="f-message">Votre message <span>*</span></label>
-            <textarea id="f-message" name="message" placeholder="Décrivez brièvement votre cas." required></textarea>
+            <label for="f-message">Votre message <span aria-hidden="true">*</span><span class="sr-only"> (obligatoire)</span></label>
+            <textarea id="f-message" name="message" placeholder="Décrivez brièvement votre cas."
+                      required minlength="10" aria-describedby="err-message"></textarea>
+            <p class="field__error" id="err-message" hidden></p>
           </div>
           <div class="form__foot">
             <button class="btn" type="submit">Envoyer la demande {ARROW}</button>
-            <p class="form__legal">
+            <p class="form__legal" id="formLegal">
               Vos informations restent couvertes par le secret professionnel
               et ne sont transmises à aucun tiers.
             </p>
@@ -1866,12 +1947,13 @@ def build_contact():
           <svg width="24" height="24" class="notice__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
             <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>
           </svg>
-          <p><b>Démonstration — concept.</b> Aucun back-end&nbsp;: la
-          soumission ouvre votre messagerie pré-remplie vers {EMAIL}.</p>
+          <p><b>Comment ça marche&nbsp;?</b> La soumission ouvre votre
+          messagerie avec un e-mail pré-rempli vers {EMAIL}. Aucune donnée
+          n'est enregistrée sur ce site.</p>
         </div>
       </div>
 
-      <div class="sticky-side">
+      <aside class="sticky-side" aria-label="Coordonnées du cabinet">
         <div data-reveal="right">
           <div class="map-panel">
             <iframe title="Plan d'accès — 45, rue Ali Darghouth, Tunis"
@@ -1892,11 +1974,11 @@ def build_contact():
           </div>
 
           <a class="btn btn--ghost" style="margin-top:26px;width:100%" target="_blank" rel="noopener"
-             href="https://www.google.com/maps/search/?api=1&amp;query=45+Rue+Ali+Darghouth+1001+Tunis">
+             href="{MAP_URL}">
             Ouvrir l'itinéraire {ARROW}
           </a>
         </div>
-      </div>
+      </aside>
     </div>
   </div>
 </section>
