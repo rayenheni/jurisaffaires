@@ -26,6 +26,48 @@
   var lastY = window.pageYOffset || document.documentElement.scrollTop;
   var scrollThreshold = 8;
 
+  /* Géométrie mise en cache.
+     La version précédente lisait `document.scrollHeight`, `hero.offsetHeight`
+     puis trois `getBoundingClientRect()` à chaque événement de scroll : ces
+     lectures forçaient un recalcul de mise en page à chaque image affichée
+     (tâches longues et saccades relevées par PageSpeed sur mobile). Tout est
+     désormais mesuré une seule fois au chargement, au redimensionnement et
+     lorsque les images ont fini d'arriver ; le défilement ne lit plus le
+     layout du tout. */
+  var view = { h: window.innerHeight, docH: document.documentElement.scrollHeight };
+  var geo = {
+    heroBottom: 600,
+    formTop: Infinity,
+    formBottom: -Infinity,
+    footerTop: Infinity,
+    ready: false
+  };
+
+  function measure() {
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    view.h = window.innerHeight;
+    view.docH = document.documentElement.scrollHeight;
+
+    var heroEl = document.getElementById('hero');
+    var formEl = document.getElementById('contactForm') || document.getElementById('bookingApp');
+    var footEl = document.querySelector('footer.footer');
+
+    function bounds(el) {
+      if (!el) return null;
+      var r = el.getBoundingClientRect();
+      return { top: r.top + y, bottom: r.bottom + y };
+    }
+
+    var formRect = bounds(formEl);
+    var footRect = bounds(footEl);
+
+    geo.heroBottom = heroEl ? y + heroEl.getBoundingClientRect().bottom : y + 600;
+    geo.formTop = formRect ? formRect.top : Infinity;
+    geo.formBottom = formRect ? formRect.bottom : -Infinity;
+    geo.footerTop = footRect ? footRect.top : Infinity;
+    geo.ready = true;
+  }
+
   function onScroll() {
     if (!header) return;
     var y = window.pageYOffset || document.documentElement.scrollTop;
@@ -57,9 +99,8 @@
 
   function onScrollProgress() {
     if (!progress) return;
-    var doc = document.documentElement;
-    var max = doc.scrollHeight - window.innerHeight;
-    var ratio = max > 0 ? (window.pageYOffset || doc.scrollTop) / max : 0;
+    var max = view.docH - view.h;
+    var ratio = max > 0 ? (window.pageYOffset || document.documentElement.scrollTop) / max : 0;
     progress.style.transform = 'scaleX(' + Math.min(Math.max(ratio, 0), 1) + ')';
   }
 
@@ -70,12 +111,26 @@
     window.requestAnimationFrame(function () {
       onScroll();
       onScrollProgress();
+      syncStickyBar();
       ticking = false;
     });
   }
 
+  function onResize() {
+    measure();
+    onScrollFrame();
+  }
+
   window.addEventListener('scroll', onScrollFrame, { passive: true });
-  window.addEventListener('resize', onScrollFrame, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
+  // Les images en `loading="lazy"` et les polices modifient la hauteur du
+  // document après le premier rendu : on remesure une fois qu'elles sont là.
+  window.addEventListener('load', onResize, { once: true });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { measure(); });
+  }
+
+  measure();
   onScroll();
   onScrollProgress();
 
@@ -221,16 +276,6 @@
   var stickyBar = document.getElementById('stickyBar');
 
   if (stickyBar) {
-    var hero = document.getElementById('hero');
-    var stickyForm = document.getElementById('contactForm') || document.getElementById('bookingApp');
-    var stickyFooter = document.querySelector('footer.footer');
-
-    function overlapsViewport(el) {
-      if (!el) return false;
-      var r = el.getBoundingClientRect();
-      return r.top < window.innerHeight - 8 && r.bottom > 0;
-    }
-
     function applySticky(visible) {
       stickyBar.classList.toggle('is-visible', visible);
       // `inert` retire les deux liens de la barre de l'ordre de tabulation ;
@@ -251,18 +296,21 @@
         applySticky(false);
         return;
       }
-      var past = (window.pageYOffset || 0) > (hero ? hero.offsetHeight - 140 : 600);
+      if (!geo.ready) measure();
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      var viewportBottom = y + view.h;
+      var past = y > geo.heroBottom - 140;
       // La barre ne doit recouvrir ni le menu ouvert, ni un champ du
       // formulaire, ni la fin du pied de page.
       var menuOpen = Boolean(menu && menu.classList.contains('is-open'));
-      var blocked = menuOpen || overlapsViewport(stickyForm) || overlapsViewport(stickyFooter);
+      var blocked = menuOpen
+        || (geo.formTop < viewportBottom - 8 && geo.formBottom > y)
+        || (geo.footerTop < viewportBottom - 8);
       stickyBar.classList.toggle('is-suppressed', blocked);
       applySticky(past && !blocked);
     }
 
     syncStickyBar = onSticky;
-    window.addEventListener('scroll', onSticky, { passive: true });
-    window.addEventListener('resize', onSticky, { passive: true });
     onSticky();
   }
 

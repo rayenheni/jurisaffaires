@@ -384,7 +384,25 @@ def asset_version(rel_path):
         return "0"
 
 
-CSS_V = asset_version(os.path.join("assets", "css", "style.css"))
+# Largeurs générées par tools/build_images.py pour les portraits d'équipe.
+PORTRAIT_WIDTHS = [96, 160, 260, 400, 500]
+
+
+def srcset(rel_path, widths):
+    """Construit un `srcset` WebP à partir des variantes de tools/build_images.py.
+
+    `rel_path` est le chemin logique de l'image d'origine (ex.
+    "team/slim-bouderbala.jpg"). Les fichiers WebP correspondants sont
+    nommés "<base>-<largeur>.webp". Le navigateur choisit la plus petite
+    variante suffisante pour le viewport et la densité d'écran ; le `src`
+    d'origine reste le repli pour les navigateurs sans WebP.
+    """
+    base = os.path.splitext(rel_path)[0]
+    return ", ".join(
+        f"assets/img/{base}-{w}.webp {w}w" for w in widths)
+
+
+CSS_V = asset_version(os.path.join("assets", "css", "style.min.css"))
 JS_V = asset_version(os.path.join("assets", "js", "main.js"))
 BOOKING_V = asset_version(os.path.join("assets", "js", "booking.js"))
 
@@ -461,10 +479,9 @@ def head(title, desc, extra="", og_title=None, og_url=None):
 <meta name="twitter:title" content="{og_title}">
 <meta name="twitter:description" content="{desc}">
 <meta name="twitter:image" content="{SITE_URL}assets/img/editorial-hero.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,200..500;1,6..72,200..400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v={CSS_V}">
+<link rel="preload" href="assets/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/newsreader-300-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.min.css?v={CSS_V}">
 <script type="application/ld+json">{LD_JSON}</script>
 <script>document.documentElement.className += " js";</script>
 {CRITICAL_CSS}
@@ -495,7 +512,7 @@ def header(active=""):
     <div class="header__bar">
 
       <a class="brand" href="index.html" aria-label="JurisAffaires — retour à l'accueil">
-        <img src="assets/img/logo-jurisaffaires.png" alt="JurisAffaires — Avocats &amp; Conseils" class="brand__logo" width="230" height="38">
+        <img src="assets/img/logo-jurisaffaires.png" srcset="assets/img/logo-jurisaffaires-230.webp 230w, assets/img/logo-jurisaffaires-460.webp 460w" sizes="230px" alt="JurisAffaires — Avocats &amp; Conseils" class="brand__logo" width="230" height="38">
       </a>
 
       <nav class="nav" aria-label="Navigation principale">
@@ -588,7 +605,7 @@ def footer(extra_foot=""):
 
       <div class="footer__brand">
         <a class="brand" href="index.html" aria-label="JurisAffaires — retour à l'accueil">
-          <img src="assets/img/logo-jurisaffaires-light.png" alt="JurisAffaires — Avocats &amp; Conseils" class="brand__logo brand__logo--light" width="230" height="38">
+          <img src="assets/img/logo-jurisaffaires-light.png" srcset="assets/img/logo-jurisaffaires-light-230.webp 230w, assets/img/logo-jurisaffaires-light-460.webp 460w" sizes="230px" alt="JurisAffaires — Avocats &amp; Conseils" class="brand__logo brand__logo--light" width="230" height="38">
         </a>
         <p>
           Société professionnelle d'avocats inscrite au Barreau de Tunis, au
@@ -656,7 +673,7 @@ def footer(extra_foot=""):
   <a class="sticky-bar__btn sticky-bar__btn--accent" href="rendez-vous.html">Prendre RDV</a>
 </nav>
 
-<script src="assets/js/main.js?v={JS_V}"></script>
+<script src="assets/js/main.js?v={JS_V}" defer></script>
 {extra_foot}</body>
 </html>
 """
@@ -766,7 +783,9 @@ def stat_strip(dark=False, stats=None):
 
 def logo_grid(dark=True):
     cells = "\n".join(
-        f'    <div class="logo-cell"><img src="assets/img/clients/{f}" alt="{a}" loading="lazy"></div>'
+        f'    <div class="logo-cell"><img src="assets/img/clients/{f}" '
+        f'srcset="assets/img/clients/{os.path.splitext(f)[0]}-120.webp 120w" sizes="120px" '
+        f'alt="{a}" width="120" height="120" loading="lazy" decoding="async"></div>'
         for f, a in CLIENTS)
     return f'<div class="logo-grid" data-reveal="fade">\n{cells}\n</div>'
 
@@ -822,7 +841,10 @@ def member_card(m):
         <article class="member" data-reveal="fade">
           <a class="member__photo" href="{m['slug']}">
             <span class="member__num">{m['num']}</span>
-            <img src="assets/img/team/{m['img']}" alt="{m['alt']}" width="500" height="500" loading="lazy">
+            <img src="assets/img/team/{m['img']}"
+                 srcset="{srcset('team/' + m['img'], PORTRAIT_WIDTHS)}"
+                 sizes="(min-width: 1060px) 300px, (min-width: 640px) 45vw, 88vw"
+                 alt="{m['alt']}" width="500" height="500" loading="lazy" decoding="async">
           </a>
           <h2 class="member__name"><span>Maître</span><a href="{m['slug']}">{m['first']} {m['last']}</a></h2>
           <p class="member__role">{m['role']}</p>
@@ -935,8 +957,10 @@ def build_cabinet():
       <div class="prose">
         <figure class="editorial editorial--sm" data-reveal="fade" style="margin-bottom:30px">
           <img class="editorial__img" src="assets/img/editorial-office.jpg"
+               srcset="{srcset('editorial-office.jpg', [640, 960, 1024])}"
+               sizes="(min-width: 1080px) 620px, 92vw"
                alt="Salle de réunion du cabinet : grande table en bois, fenêtres hautes, lumière du jour."
-               width="1408" height="768" loading="lazy">
+               width="1408" height="768" loading="lazy" decoding="async">
           <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
         </figure>
         <p class="eyebrow" data-reveal>Notre méthode</p>
@@ -1000,7 +1024,11 @@ def build_cabinet():
   <div class="container">
     <div class="cabinet__grid">
       <figure class="cabinet__figure" data-reveal="left">
-        <img src="assets/img/hero-architecture.jpg" alt="Détail d'une façade architecturale — lumière et ombre, Tunis." width="900" height="1125" loading="lazy">
+        <img src="assets/img/hero-architecture.jpg"
+             srcset="{srcset('hero-architecture.jpg', [480, 720, 960])}"
+             sizes="(min-width: 1060px) 46vw, 92vw"
+             alt="Détail d'une façade architecturale — lumière et ombre, Tunis."
+             width="1408" height="768" loading="lazy" decoding="async">
         <figcaption>{ADDRESS_1} — Tunis</figcaption>
       </figure>
       <div class="cabinet__body">
@@ -1113,8 +1141,10 @@ def build_expertise_hub():
   <div class="container">
     <figure class="editorial editorial--wide" data-reveal="fade" style="margin-bottom:clamp(30px,3.4vw,52px)">
       <img class="editorial__img" src="assets/img/editorial-city.jpg"
+           srcset="{srcset('editorial-city.jpg', [640, 960, 1024, 1408])}"
+           sizes="(min-width: 1080px) 1180px, 100vw"
            alt="Vue de la ville de Tunis en fin de journée, brume marine à l'horizon."
-           width="1408" height="768" loading="lazy">
+           width="1408" height="768" loading="lazy" decoding="async">
       <figcaption>Tunis — la ville où le cabinet exerce</figcaption>
     </figure>
   </div>
@@ -1511,7 +1541,10 @@ def build_lawyer(m):
     <div class="page-hero__inner page-hero__inner--plate">
 
       <div class="plate" data-reveal="left">
-        <img src="assets/img/team/{m['img']}" alt="{m['alt']}" width="500" height="500">
+        <img src="assets/img/team/{m['img']}"
+             srcset="{srcset('team/' + m['img'], PORTRAIT_WIDTHS)}"
+             sizes="(min-width: 1060px) 520px, 92vw"
+             alt="{m['alt']}" width="500" height="500" fetchpriority="high" decoding="async">
       </div>
 
       <div>
@@ -1784,7 +1817,9 @@ def build_publication_detail(pub):
 
         <!-- Encadré Auteur -->
         <div class="article__author-box">
-          <img src="assets/img/team/{pub['author_img']}" alt="{pub['author']}" width="76" height="76">
+          <img src="assets/img/team/{pub['author_img']}"
+               srcset="{srcset('team/' + pub['author_img'], [96, 160])}" sizes="76px"
+               alt="{pub['author']}" width="76" height="76" loading="lazy" decoding="async">
           <div>
             <h3>Auteur de l'analyse</h3>
             <p><strong>{pub['author']}</strong> — {pub['author_role']}. Avocat inscrit au Barreau de Tunis, intervenant au sein du cabinet JurisAffaires.</p>
@@ -1894,8 +1929,10 @@ def build_contact():
   <div class="container">
     <figure class="editorial editorial--wide" data-reveal="fade" style="margin-bottom:clamp(30px,3.4vw,52px)">
       <img class="editorial__img" src="assets/img/editorial-tunis.jpg"
+           srcset="{srcset('editorial-tunis.jpg', [640, 960, 1024, 1408])}"
+           sizes="(min-width: 1080px) 1180px, 100vw"
            alt="Détail de mauresque : l'ombre géométrique d'un écran sculpté sur un mur de plâtre blanc."
-           width="1408" height="768" loading="lazy">
+           width="1408" height="768" loading="lazy" decoding="async">
       <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
     </figure>
 
@@ -2407,7 +2444,9 @@ def build_references():
 
     def block(title, note, items):
         cells = "\n".join(
-            f'          <div class="logo-cell"><img src="assets/img/clients/{f}" alt="{a}" loading="lazy"></div>'
+            f'          <div class="logo-cell"><img src="assets/img/clients/{f}" '
+            f'srcset="assets/img/clients/{os.path.splitext(f)[0]}-120.webp 120w" sizes="120px" '
+            f'alt="{a}" width="120" height="120" loading="lazy" decoding="async"></div>'
             for f, a in items)
         return f"""
     <div class="ref-block" data-reveal="fade">
@@ -2585,7 +2624,7 @@ def build_booking():
         title="Prendre rendez-vous — Juris Affaires Avocats &amp; Conseils",
         desc="Réservez en ligne une consultation au cabinet à Tunis, en visioconférence ou par téléphone avec les avocats associés de JurisAffaires.",
         active="rendez-vous.html",
-        extra_foot=f'<script src="assets/js/booking.js?v={BOOKING_V}"></script>\n'))
+        extra_foot=f'<script src="assets/js/booking.js?v={BOOKING_V}" defer></script>\n'))
 
 
 # ================================================================ BUILD ALL

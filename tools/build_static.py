@@ -4,12 +4,16 @@ from pathlib import Path
 import shutil
 
 from build_pages import main as build_pages
+from minify_css import main as minify_css
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "public"
 
 
 def main():
+    # La feuille de style minifiée doit être à jour avant de générer les
+    # pages : chaque page référence style.min.css avec son empreinte.
+    minify_css()
     build_pages()
     # Recreate the output so removed pages/assets cannot survive a rebuild.
     if OUTPUT.exists():

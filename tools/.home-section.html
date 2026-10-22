@@ -5,8 +5,18 @@
      ================================================================ -->
 <section class="hero grain" id="hero">
 
-  <!-- Photo de fond pleine section -->
-  <div class="hero__media" aria-hidden="true"></div>
+  <!-- Photo de fond pleine section.
+       Une <img> (et non un background CSS) : c'est l'élément LCP de la page,
+       le navigateur la découvre en lisant le HTML, choisit la variante la
+       plus légère via srcset et peut la précharger. -->
+  <img class="hero__media" src="assets/img/editorial-library.jpg"
+       srcset="assets/img/editorial-library-640.webp 640w,
+               assets/img/editorial-library-960.webp 960w,
+               assets/img/editorial-library-1024.webp 1024w,
+               assets/img/editorial-library-1200.webp 1200w,
+               assets/img/editorial-library-1408.webp 1408w"
+       sizes="100vw" alt="" width="1408" height="768"
+       fetchpriority="high" aria-hidden="true">
   <!-- Scrim gauche fort + bas dégradé -->
   <div class="hero__scrim" aria-hidden="true"></div>
   <!-- Grille décorative -->
@@ -270,7 +280,11 @@
 
     <div class="cabinet__grid">
       <figure class="cabinet__figure" data-reveal="left">
-        <img src="assets/img/editorial-library.jpg" alt="Rayonnage de ouvrages juridiques reliés cuir, lumière rasante." width="1408" height="768" loading="lazy">
+        <img src="assets/img/editorial-library.jpg"
+             srcset="assets/img/editorial-library-640.webp 640w, assets/img/editorial-library-960.webp 960w, assets/img/editorial-library-1024.webp 1024w"
+             sizes="(min-width: 1060px) 46vw, 92vw"
+             alt="Rayonnage de ouvrages juridiques reliés cuir, lumière rasante."
+             width="1408" height="768" loading="lazy" decoding="async">
         <figcaption>45, rue Ali Darghouth — Tunis</figcaption>
       </figure>
 
@@ -344,7 +358,10 @@
       <article class="member" data-reveal="fade">
         <div class="member__photo">
           <span class="member__num">01</span>
-          <img src="assets/img/team/slim-bouderbala.jpg" alt="Portrait de Maître Slim Bouderbala, avocat associé et gérant du cabinet." width="500" height="500" loading="lazy">
+          <img src="assets/img/team/slim-bouderbala.jpg"
+               srcset="assets/img/team/slim-bouderbala-96.webp 96w, assets/img/team/slim-bouderbala-160.webp 160w, assets/img/team/slim-bouderbala-260.webp 260w, assets/img/team/slim-bouderbala-400.webp 400w, assets/img/team/slim-bouderbala-500.webp 500w"
+               sizes="(min-width: 1060px) 300px, (min-width: 640px) 45vw, 88vw"
+               alt="Portrait de Maître Slim Bouderbala, avocat associé et gérant du cabinet." width="500" height="500" loading="lazy" decoding="async">
         </div>
         <h3 class="member__name"><span>Maître</span>Slim BOUDERBALA</h3>
         <p class="member__role">Avocat Associé · Gérant</p>
@@ -362,7 +379,10 @@
       <article class="member" data-reveal="fade">
         <div class="member__photo">
           <span class="member__num">02</span>
-          <img src="assets/img/team/faten-guemri.jpg" alt="Portrait de Maître Faten Guemri, avocate associée du cabinet." width="500" height="500" loading="lazy">
+          <img src="assets/img/team/faten-guemri.jpg"
+               srcset="assets/img/team/faten-guemri-96.webp 96w, assets/img/team/faten-guemri-160.webp 160w, assets/img/team/faten-guemri-260.webp 260w, assets/img/team/faten-guemri-400.webp 400w, assets/img/team/faten-guemri-500.webp 500w"
+               sizes="(min-width: 1060px) 300px, (min-width: 640px) 45vw, 88vw"
+               alt="Portrait de Maître Faten Guemri, avocate associée du cabinet." width="500" height="500" loading="lazy" decoding="async">
         </div>
         <h3 class="member__name"><span>Maître</span>Faten GUEMRI</h3>
         <p class="member__role">Avocate Associée · Co-gérante</p>
@@ -380,7 +400,10 @@
       <article class="member" data-reveal="fade">
         <div class="member__photo">
           <span class="member__num">03</span>
-          <img src="assets/img/team/sahbi-bouderbala.jpg" alt="Portrait de Maître Med Sahbi Bouderbala, avocat senior associé." width="500" height="500" loading="lazy">
+          <img src="assets/img/team/sahbi-bouderbala.jpg"
+               srcset="assets/img/team/sahbi-bouderbala-96.webp 96w, assets/img/team/sahbi-bouderbala-160.webp 160w, assets/img/team/sahbi-bouderbala-260.webp 260w, assets/img/team/sahbi-bouderbala-400.webp 400w, assets/img/team/sahbi-bouderbala-500.webp 500w"
+               sizes="(min-width: 1060px) 300px, (min-width: 640px) 45vw, 88vw"
+               alt="Portrait de Maître Med Sahbi Bouderbala, avocat senior associé." width="500" height="500" loading="lazy" decoding="async">
         </div>
         <h3 class="member__name"><span>Maître</span>Med Sahbi BOUDERBALA</h3>
         <p class="member__role">Associé Senior</p>
@@ -398,7 +421,10 @@
       <article class="member" data-reveal="fade">
         <div class="member__photo">
           <span class="member__num">04</span>
-          <img src="assets/img/team/taoufik-bouderbala.jpg" alt="Portrait de Maître Taoufik Bouderbala, avocat senior associé." width="500" height="500" loading="lazy">
+          <img src="assets/img/team/taoufik-bouderbala.jpg"
+               srcset="assets/img/team/taoufik-bouderbala-96.webp 96w, assets/img/team/taoufik-bouderbala-160.webp 160w, assets/img/team/taoufik-bouderbala-260.webp 260w, assets/img/team/taoufik-bouderbala-400.webp 400w, assets/img/team/taoufik-bouderbala-500.webp 500w"
+               sizes="(min-width: 1060px) 300px, (min-width: 640px) 45vw, 88vw"
+               alt="Portrait de Maître Taoufik Bouderbala, avocat senior associé." width="500" height="500" loading="lazy" decoding="async">
         </div>
         <h3 class="member__name"><span>Maître</span>Taoufik BOUDERBALA</h3>
         <p class="member__role">Associé Senior</p>
@@ -451,18 +477,18 @@
     </div>
 
     <div class="logo-grid" data-reveal="fade">
-      <div class="logo-cell"><img src="assets/img/clients/bft-stb.png" alt="BFT — STB Bank" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/qnb.png" alt="QNB Bank" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/tsb.png" alt="Tunisian Saudi Bank" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/conect.png" alt="CONECT — Confédération des Entreprises Citoyennes de Tunisie" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/seabel.png" alt="Seabel Hotels — Tunisie Groupe" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/palm-beach.png" alt="Palm Beach Hotels — Tunisie" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/villa-didon.png" alt="Villa Didon Carthage" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/finzi.png" alt="Finzi — Usines Graphiques" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/systra-studi.png" alt="Groupe STUDI" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/gamma-plast.png" alt="Gamma Plast" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/mcm.png" alt="MCM — Marketing Communication Media" loading="lazy"></div>
-      <div class="logo-cell"><img src="assets/img/clients/croissant-rouge.png" alt="Le Croissant-Rouge Tunisien" loading="lazy"></div>
+      <div class="logo-cell"><img src="assets/img/clients/bft-stb.png" srcset="assets/img/clients/bft-stb-120.webp 120w" sizes="120px" alt="BFT — STB Bank" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/qnb.png" srcset="assets/img/clients/qnb-120.webp 120w" sizes="120px" alt="QNB Bank" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/tsb.png" srcset="assets/img/clients/tsb-120.webp 120w" sizes="120px" alt="Tunisian Saudi Bank" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/conect.png" srcset="assets/img/clients/conect-120.webp 120w" sizes="120px" alt="CONECT — Confédération des Entreprises Citoyennes de Tunisie" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/seabel.png" srcset="assets/img/clients/seabel-120.webp 120w" sizes="120px" alt="Seabel Hotels — Tunisie Groupe" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/palm-beach.png" srcset="assets/img/clients/palm-beach-120.webp 120w" sizes="120px" alt="Palm Beach Hotels — Tunisie" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/villa-didon.png" srcset="assets/img/clients/villa-didon-120.webp 120w" sizes="120px" alt="Villa Didon Carthage" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/finzi.png" srcset="assets/img/clients/finzi-120.webp 120w" sizes="120px" alt="Finzi — Usines Graphiques" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/systra-studi.png" srcset="assets/img/clients/systra-studi-120.webp 120w" sizes="120px" alt="Groupe STUDI" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/gamma-plast.png" srcset="assets/img/clients/gamma-plast-120.webp 120w" sizes="120px" alt="Gamma Plast" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/mcm.png" srcset="assets/img/clients/mcm-120.webp 120w" sizes="120px" alt="MCM — Marketing Communication Media" width="120" height="120" loading="lazy" decoding="async"></div>
+      <div class="logo-cell"><img src="assets/img/clients/croissant-rouge.png" srcset="assets/img/clients/croissant-rouge-120.webp 120w" sizes="120px" alt="Le Croissant-Rouge Tunisien" width="120" height="120" loading="lazy" decoding="async"></div>
     </div>
 
     <div class="refs__foot">
