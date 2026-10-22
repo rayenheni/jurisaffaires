@@ -12,6 +12,7 @@ a:hover{color:var(--green-deep)}
 img{max-width:100%}
 
 /* Login */
+[hidden]{display:none !important}
 .login-body{min-height:100vh;display:grid;place-items:center;background:var(--ink);padding:24px}
 .login-wrap{width:min(440px,100%)}
 .login-card{background:#fff;border-radius:20px;padding:36px 30px;box-shadow:var(--shadow)}
@@ -101,5 +102,34 @@ td{vertical-align:top}
 .list-item img{width:56px;height:56px;object-fit:cover;border-radius:10px;border:1px solid var(--line-soft)}
 .mobile-only{display:none}
 @media(max-width:900px){.mobile-only{display:flex}}
-.burger{display:none;width:42px;height:42px;border:1px solid rgba(244,240,232,.15);background:rgba(244,240,232,.06);color:#fff;border-radius:10px}
-@media(max-width:900px){.burger{display:grid;place-items:center}}
+.burger{display:none;width:42px;height:42px;border:1px solid var(--line);background:#FCFBF8;color:var(--ink);border-radius:10px;cursor:pointer}
+@media(max-width:900px){
+  .burger{display:grid;place-items:center}
+  .sidebar{display:none}
+  .sidebar.is-open{display:flex}
+}
+
+/* ── Module Réservations (Admin) ── */
+.subtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:5px;background:#fff;border:1px solid var(--line-soft);border-radius:12px}
+.subtab{padding:8px 14px;border:0;border-radius:9px;background:transparent;font:inherit;font-size:.86rem;font-weight:600;color:var(--slate);cursor:pointer;transition:.15s}
+.subtab:hover{color:var(--ink);background:var(--ivory)}
+.subtab.is-active{background:var(--ink);color:#fff}
+.tag--pending{background:#FFF7E0;border-color:#E7C97A;color:#78530D}
+.tag--confirmed{background:#E8F5EE;border-color:#A8DEC0;color:#185B37}
+.tag--completed{background:#EEF2F6;border-color:#CBD5E1;color:#334155}
+.tag--cancelled{background:#FEF2F1;border-color:#FEC6C1;color:#991B1B}
+.resv-drawer{background:#FCFBF8;border:2px solid var(--green);border-radius:14px;padding:18px;margin-bottom:16px}
+.agenda-grid{overflow-x:auto}
+.agenda-table th,.agenda-table td{padding:8px 10px;vertical-align:middle;min-width:150px}
+.agenda-table th:first-child,.agenda-table td:first-child{min-width:86px;width:86px;font-weight:700;background:#FCFBF8}
+.slot-cell{display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:9px;border:1px solid var(--line-soft);font-size:.8rem}
+.slot-cell--free{background:#FAFCFB;border-style:dashed}
+.slot-cell--booked{background:#EEF7F3;border-color:#9FD3BE}
+.slot-cell--pending{background:#FFFDF5;border-color:#E7C97A}
+.slot-cell--blocked{background:#FEF5F4;border-color:#F7C1BC;color:#7A2E27}
+.slot-cell__actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.slot-mini-btn{padding:3px 7px;font-size:.72rem;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600}
+.slot-mini-btn:hover{border-color:var(--ink)}
+.sched-row{display:grid;grid-template-columns:130px 90px 1fr 1fr;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+@media(max-width:760px){.sched-row{grid-template-columns:1fr 1fr}}
+

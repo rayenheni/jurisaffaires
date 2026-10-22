@@ -49,56 +49,9 @@ NAV = [
     ("equipe.html",        "Équipe"),
     ("publications.html",  "Publications"),
     ("references.html",    "Références"),
+    ("rendez-vous.html",   "Rendez-vous"),
     ("contact.html",       "Contact"),
 ]
-
-# ── Chargement du CMS JSON (si présent, écrase les constantes ci-dessus) ──
-# Permet à l'espace admin de piloter tout le contenu sans toucher au code.
-_CMS_PATH = os.path.join(ROOT, "data", "cms.json")
-try:
-    import json as _json
-    if os.path.exists(_CMS_PATH):
-        _cms = _json.load(open(_CMS_PATH, encoding="utf-8"))
-        _site = _cms.get("site", {})
-        NAME       = _site.get("NAME", NAME)
-        LEGAL_NAME = _site.get("LEGAL_NAME", LEGAL_NAME)
-        SITE_URL   = _site.get("SITE_URL", SITE_URL)
-        ADDRESS_1  = _site.get("ADDRESS_1", ADDRESS_1)
-        ADDRESS_2  = _site.get("ADDRESS_2", ADDRESS_2)
-        PHONE_MAIN = _site.get("PHONE_MAIN", PHONE_MAIN)
-        PHONE_2    = _site.get("PHONE_2", PHONE_2)
-        PHONE_3    = _site.get("PHONE_3", PHONE_3)
-        FAX        = _site.get("FAX", FAX)
-        EMAIL      = _site.get("EMAIL", EMAIL)
-        HOURS      = _site.get("HOURS", HOURS)
-        MAP_URL    = _site.get("MAP_URL", MAP_URL)
-        if "nav" in _cms:
-            NAV = [(x["href"], x["label"]) for x in _cms["nav"]]
-        if "expertise_subnav" in _cms:
-            EXPERTISE_SUBNAV = [(x["href"], x["label"]) for x in _cms["expertise_subnav"]]
-        if "pillars" in _cms:
-            PILLARS = _cms["pillars"]
-        if "sport" in _cms:
-            SPORT = _cms["sport"]
-        if "pillars" in _cms and "sport" in _cms:
-            ALL_EXPERTISES = PILLARS + [SPORT]
-        if "team" in _cms:
-            TEAM = _cms["team"]
-        if "clients" in _cms:
-            CLIENTS = [(x["file"], x["alt"]) for x in _cms["clients"]]
-        if "publications" in _cms:
-            PUBLICATIONS = _cms["publications"]
-        if "stats_fixed" in _cms:
-            STATS_FIXED = [(x["value"], x["label"]) for x in _cms["stats_fixed"]]
-        if "practices" in _cms:
-            PRACTICES = {int(k): [(p["title"], p["desc"], p["tag"]) for p in v] for k,v in _cms["practices"].items()}
-        if "engagements" in _cms:
-            ENGAGEMENTS = {int(k): [(e["title"], e["desc"]) for e in v] for k,v in _cms["engagements"].items()}
-        if "all_domains" in _cms:
-            ALL_DOMAINS = _cms["all_domains"]
-except Exception as _e:
-    # En cas de JSON corrompu on garde les valeurs codées en dur
-    print(f"[cms] chargement ignoré: {_e}")
 
 def slugify(text):
     text = text.replace("&amp;", " et ").replace("&", " et ")
@@ -363,6 +316,52 @@ ALL_DOMAINS = [
     "Droit civil", "Droits de l'Homme",
 ]
 
+# ── Chargement du CMS JSON (si présent, écrase les constantes par défaut) ──
+_CMS_PATH = os.path.join(ROOT, "data", "cms.json")
+try:
+    import json as _json
+    if os.path.exists(_CMS_PATH):
+        _cms = _json.load(open(_CMS_PATH, encoding="utf-8"))
+        _site = _cms.get("site", {})
+        NAME       = _site.get("NAME", NAME)
+        LEGAL_NAME = _site.get("LEGAL_NAME", LEGAL_NAME)
+        SITE_URL   = _site.get("SITE_URL", SITE_URL)
+        ADDRESS_1  = _site.get("ADDRESS_1", ADDRESS_1)
+        ADDRESS_2  = _site.get("ADDRESS_2", ADDRESS_2)
+        PHONE_MAIN = _site.get("PHONE_MAIN", PHONE_MAIN)
+        PHONE_2    = _site.get("PHONE_2", PHONE_2)
+        PHONE_3    = _site.get("PHONE_3", PHONE_3)
+        FAX        = _site.get("FAX", FAX)
+        EMAIL      = _site.get("EMAIL", EMAIL)
+        HOURS      = _site.get("HOURS", HOURS)
+        MAP_URL    = _site.get("MAP_URL", MAP_URL)
+        if "nav" in _cms:
+            NAV = [(x["href"], x["label"]) for x in _cms["nav"]]
+        if "expertise_subnav" in _cms:
+            EXPERTISE_SUBNAV = [(x["href"], x["label"]) for x in _cms["expertise_subnav"]]
+        if "pillars" in _cms:
+            PILLARS = _cms["pillars"]
+        if "sport" in _cms:
+            SPORT = _cms["sport"]
+        if "pillars" in _cms and "sport" in _cms:
+            ALL_EXPERTISES = PILLARS + [SPORT]
+        if "team" in _cms:
+            TEAM = _cms["team"]
+        if "clients" in _cms:
+            CLIENTS = [(x["file"], x["alt"]) for x in _cms["clients"]]
+        if "publications" in _cms:
+            PUBLICATIONS = _cms["publications"]
+        if "stats_fixed" in _cms:
+            STATS_FIXED = [(x["value"], x["label"]) for x in _cms["stats_fixed"]]
+        if "practices" in _cms:
+            PRACTICES = {int(k): [(p["title"], p["desc"], p["tag"]) for p in v] for k, v in _cms["practices"].items()}
+        if "engagements" in _cms:
+            ENGAGEMENTS = {int(k): [(e["title"], e["desc"]) for e in v] for k, v in _cms["engagements"].items()}
+        if "all_domains" in _cms:
+            ALL_DOMAINS = _cms["all_domains"]
+except Exception as _e:
+    print(f"[cms] chargement ignoré: {_e}")
+
 ARROW = ('<svg class="btn__arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" '
          'stroke-width="1.4" aria-hidden="true"><path d="M2 8h12M9.5 3.5 14 8l-4.5 4.5"/></svg>')
 
@@ -387,6 +386,7 @@ def asset_version(rel_path):
 
 CSS_V = asset_version(os.path.join("assets", "css", "style.css"))
 JS_V = asset_version(os.path.join("assets", "js", "main.js"))
+BOOKING_V = asset_version(os.path.join("assets", "js", "booking.js"))
 
 # Sécurité de présentation : si style.css arrive en retard ou échoue, aucun
 # SVG inline ne doit pouvoir s'étendre sur toute la page.
@@ -510,8 +510,8 @@ def header(active=""):
           {PHONE_MAIN}
         </a>
 
-        <a class="btn btn--sm header__cta" href="contact.html">
-          Prendre contact
+        <a class="btn btn--sm header__cta" href="rendez-vous.html">
+          Prendre RDV
           {ARROW}
         </a>
 
@@ -541,8 +541,8 @@ def header(active=""):
       <dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd>
     </dl>
     <div class="mobile-menu__actions">
-      <a class="btn" href="tel:+21671256751">Appeler le cabinet</a>
-      <a class="btn btn--ghost btn--ghost-light" href="contact.html">Prendre contact</a>
+      <a class="btn" href="rendez-vous.html">Prendre rendez-vous</a>
+      <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">Appeler le cabinet</a>
     </div>
   </div>
 </div>
@@ -564,16 +564,17 @@ def subnav(current):
 """
 
 
-def footer():
+def footer(extra_foot=""):
     return f"""
 <section class="mega" aria-labelledby="mega-title">
   <div class="container">
-    <h2 class="mega__line" id="mega-title"><a href="contact.html">Parlons de votre dossier.</a></h2>
+    <h2 class="mega__line" id="mega-title"><a href="rendez-vous.html">Parlons de votre dossier.</a></h2>
     <p class="mega__line mega__line--alt">
       <a href="mailto:{EMAIL}">avocats-conseils@jurisaffaires.net</a>
       <span class="mega__dot" aria-hidden="true"></span>
     </p>
     <ul class="mega__links">
+      <li><a href="rendez-vous.html">Prendre rendez-vous</a></li>
       <li><a href="tel:+21671256751">(+216) 71 256 751</a></li>
       <li><a href="expertises.html">Expertises</a></li>
       <li><a href="equipe.html">Équipe</a></li>
@@ -605,6 +606,7 @@ def footer():
           <li><a href="equipe.html">Équipe</a></li>
           <li><a href="publications.html">Publications</a></li>
           <li><a href="references.html">Références</a></li>
+          <li><a href="rendez-vous.html">Prendre rendez-vous</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -651,23 +653,23 @@ def footer():
     </svg>
     Appeler
   </a>
-  <a class="sticky-bar__btn sticky-bar__btn--accent" href="contact.html">Prendre contact</a>
+  <a class="sticky-bar__btn sticky-bar__btn--accent" href="rendez-vous.html">Prendre RDV</a>
 </nav>
 
 <script src="assets/js/main.js?v={JS_V}"></script>
-</body>
+{extra_foot}</body>
 </html>
 """
 
 
-def page_h(*parts, title, desc, active="", extra_head="", body_class=""):
+def page_h(*parts, title, desc, active="", extra_head="", body_class="", extra_foot=""):
     """Assemble a full document from a shared chrome + page body."""
     return (head(title, desc, extra_head)
             + header(active)
             + f'\n<main id="main"{(" class=" + body_class) if body_class else ""}>\n'
             + "\n".join(parts)
             + "\n</main>\n"
-            + footer())
+            + footer(extra_foot=extra_foot))
 
 
 def write(name, html):
@@ -676,7 +678,38 @@ def write(name, html):
     # Dimensions intrinsiques sur chaque <img> qui n'en a pas : le navigateur
     # reserve la place avant chargement, ce qui supprime le saut de mise en page.
     import re as _re
-    from PIL import Image as _Image
+    import struct as _struct
+    try:
+        from PIL import Image as _Image
+    except ImportError:
+        _Image = None
+
+    def _read_img_size(fp):
+        if _Image is not None:
+            with _Image.open(fp) as im:
+                return im.size
+        with open(fp, "rb") as f:
+            head = f.read(32)
+            if len(head) >= 24 and head[:8] == b"\x89PNG\r\n\x1a\n":
+                return _struct.unpack(">II", head[16:24])
+            if head[:2] == b"\xff\xd8":
+                f.seek(2)
+                while True:
+                    b = f.read(1)
+                    if not b:
+                        break
+                    if b != b"\xff":
+                        continue
+                    while b == b"\xff":
+                        b = f.read(1)
+                    marker = b[0]
+                    if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                        f.read(3)
+                        h, w = _struct.unpack(">HH", f.read(4))
+                        return (w, h)
+                    seg_len = _struct.unpack(">H", f.read(2))[0]
+                    f.seek(seg_len - 2, 1)
+        raise ValueError("Unsupported image format")
 
     def _dims(tag):
         m = _re.search(r'src="([^"]+)"', tag)
@@ -686,8 +719,7 @@ def write(name, html):
         if not os.path.exists(fp):
             return tag
         try:
-            with _Image.open(fp) as im:
-                w, h = im.size
+            w, h = _read_img_size(fp)
         except Exception:
             return tag
         return tag[:-1].rstrip() + ' width="%d" height="%d">' % (w, h)
@@ -739,9 +771,9 @@ def logo_grid(dark=True):
     return f'<div class="logo-grid" data-reveal="fade">\n{cells}\n</div>'
 
 
-def cta_band(title, text, points=None, primary="Prendre contact",
-             primary_href="contact.html", secondary="Appeler le cabinet",
-             secondary_href="tel:+21671256751"):
+def cta_band(title, text, points=None, primary="Prendre rendez-vous",
+             primary_href="rendez-vous.html", secondary="Prendre contact",
+             secondary_href="contact.html"):
     pts = "".join(f'<li><b>{n}</b><span>{t}</span></li>' for n, t in (points or []))
     side = (f'<ul class="cta-band__points">{pts}</ul>' if pts else "")
     return f"""
@@ -1488,7 +1520,7 @@ def build_lawyer(m):
         <h1 class="profile-name" data-reveal><span>Maître</span>{m['first']} {m['last']}</h1>
         <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:60ms">{m['bio']}</p>
         <div class="btn-row" data-reveal style="--reveal-delay:140ms;margin-top:30px">
-          <a class="btn" href="contact.html">Contacter le cabinet {ARROW}</a>
+          <a class="btn" href="rendez-vous.html?avocat={m['slug']}">Prendre rendez-vous {ARROW}</a>
           <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">{PHONE_MAIN}</a>
         </div>
       </div>
@@ -1842,8 +1874,8 @@ def build_contact():
           À taille humaine, à votre écoute.
         </p>
         <div class="btn-row" data-reveal style="--reveal-delay:140ms">
-          <a class="btn" href="tel:+21671256751">Appeler le cabinet {ARROW}</a>
-          <a class="btn btn--ghost btn--ghost-light" href="mailto:{EMAIL}">Écrire par courriel</a>
+          <a class="btn" href="rendez-vous.html">Planifier un rendez-vous {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="tel:+21671256751">Appeler le cabinet</a>
         </div>
       </div>
       <div class="aside-panel aside-panel--tight" data-reveal="right" style="--reveal-delay:120ms">
@@ -2453,6 +2485,109 @@ def build_references():
         active="references.html"))
 
 
+# ================================================================ RENDEZ-VOUS
+
+def build_booking():
+    body = f"""
+<section class="page-hero grain">
+  <div class="rule-grid" aria-hidden="true"></div>
+  <div class="container">
+    <div class="page-hero__inner page-hero__inner--split">
+
+      <div>
+        {crumb(("Prendre rendez-vous", None))}
+        <p class="eyebrow" data-reveal>Consultations &amp; audiences</p>
+        <h1 class="page-hero__title" data-reveal>Planifiez votre <em>consultation</em> juridique.</h1>
+        <p class="page-hero__text page-hero__text--short" data-reveal style="--reveal-delay:80ms">
+          Choisissez le pôle d'expertise, l'avocat associé, le format d'entretien
+          (au cabinet à Tunis, en visioconférence ou par téléphone) et réservez
+          directement un créneau disponible.
+        </p>
+        <div class="btn-row" data-reveal style="--reveal-delay:140ms">
+          <a class="btn" href="#bookingApp">Choisir un créneau {ARROW}</a>
+          <a class="btn btn--ghost btn--ghost-light" href="?tab=manage#bookingApp">Gérer un rendez-vous</a>
+        </div>
+      </div>
+
+      <div class="page-hero__side" data-reveal="right" style="--reveal-delay:120ms">
+        <p class="page-hero__side-label">Accueil &amp; modalités</p>
+        <p class="page-hero__side-big">{ADDRESS_1}, {ADDRESS_2}</p>
+        <ul class="page-hero__side-meta">
+          <li><span>Horaires</span><span>{HOURS}</span></li>
+          <li><span>Formats</span><span>Cabinet · Visioconférence · Téléphone</span></li>
+          <li><span>Standard</span><span><a href="tel:+21671256751">{PHONE_MAIN}</a></span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--paper" id="reservation">
+  <div class="container">
+    <div id="bookingApp" class="booking-app">
+      <div class="booking-card">
+        <p class="eyebrow" style="color:var(--accent-deep);margin-bottom:8px">Prise de rendez-vous</p>
+        <h2 class="booking-card__title">Chargement des disponibilités du cabinet…</h2>
+        <p class="booking-card__sub">
+          Sélectionnez un créneau en ligne ou contactez directement le secrétariat au
+          <a href="tel:+21671256751" style="text-decoration:underline">{PHONE_MAIN}</a>.
+        </p>
+        <noscript>
+          <p class="form-status is-error" style="margin-top:16px">
+            JavaScript est requis pour afficher le calendrier temps réel. Vous pouvez prendre rendez-vous par téléphone au
+            <a href="tel:+21671256751">{PHONE_MAIN}</a> ou par courriel à <a href="mailto:{EMAIL}">{EMAIL}</a>.
+          </p>
+        </noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--mist">
+  <div class="container">
+    <div class="section__head section__head--tight">
+      <div>
+        <p class="eyebrow" data-reveal>Déroulement</p>
+        <h2 class="h2" data-reveal>Trois étapes pour un entretien <em>utile dès la première heure</em>.</h2>
+      </div>
+      <p class="section__lead" data-reveal style="--reveal-delay:80ms">
+        Chaque demande est orientée vers l'associé compétent et couverte par le secret professionnel dès sa transmission.
+      </p>
+    </div>
+
+    <div class="engagements">
+      <article class="engagement" data-reveal="fade">
+        <span class="engagement__num">01</span>
+        <h3>Orientation par pôle &amp; associé</h3>
+        <p>Vous sélectionnez le domaine concerné ou laissez le secrétariat affecter l'associé le plus adapté à la nature du dossier.</p>
+      </article>
+      <article class="engagement" data-reveal="fade">
+        <span class="engagement__num">02</span>
+        <h3>Confirmation &amp; invitation agenda (.ics)</h3>
+        <p>Un numéro de référence unique vous permet d'ajouter le rendez-vous à votre calendrier et de le reporter ou l'annuler en ligne.</p>
+      </article>
+      <article class="engagement" data-reveal="fade">
+        <span class="engagement__num">03</span>
+        <h3>Consultation confidentielle préparée</h3>
+        <p>Au cabinet à Tunis, en visioconférence ou par téléphone : l'entretien débouche sur un premier diagnostic et une feuille de route claire.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{cta_band("Une urgence contentieuse ou pénale ?",
+           "Pour toute audience rapprochée, mesure conservatoire ou garde à vue, contactez immédiatement le standard du cabinet.",
+           primary="Appeler le standard", primary_href="tel:+21671256751",
+           secondary="Écrire au cabinet", secondary_href="contact.html")}
+"""
+    write("rendez-vous.html", page_h(body,
+        title="Prendre rendez-vous — Juris Affaires Avocats &amp; Conseils",
+        desc="Réservez en ligne une consultation au cabinet à Tunis, en visioconférence ou par téléphone avec les avocats associés de JurisAffaires.",
+        active="rendez-vous.html",
+        extra_foot=f'<script src="assets/js/booking.js?v={BOOKING_V}"></script>\n'))
+
+
 # ================================================================ BUILD ALL
 
 def main():
@@ -2469,6 +2604,7 @@ def main():
     build_publications()
     for pub in PUBLICATIONS:
         build_publication_detail(pub)
+    build_booking()
     build_contact()
     build_mentions()
     build_privacy()

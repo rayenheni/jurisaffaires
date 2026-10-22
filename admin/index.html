@@ -6,10 +6,38 @@
 <title>Admin — JurisAffaires</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/admin.css">
+<link rel="stylesheet" href="assets/admin.css?v=4">
 </head>
 <body>
-<div class="admin-layout">
+
+<div id="loginScreen" class="login-body" hidden>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="../assets/img/logo-jurisaffaires.png" alt="JurisAffaires" width="200" height="33">
+        <p>Espace d'administration</p>
+      </div>
+      <h1>Connexion</h1>
+      <p class="muted">Accès réservé au cabinet.</p>
+      <form id="loginForm" class="form-stack">
+        <label>Email
+          <input type="email" id="email" required autocomplete="username" placeholder="admin@jurisaffaires.tn" value="admin@jurisaffaires.tn">
+        </label>
+        <label>Mot de passe
+          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+        </label>
+        <div id="loginError" class="alert alert--error" hidden></div>
+        <button type="submit" class="btn btn--primary btn--block" id="loginBtn">Se connecter</button>
+        <p class="login-hint muted">Défaut : <code>admin@jurisaffaires.tn</code> / <code>Admin123!</code> — à changer après première connexion.</p>
+      </form>
+    </div>
+    <div class="login-foot">
+      <a href="../index.html">← Retour au site</a>
+    </div>
+  </div>
+</div>
+
+<div id="appShell" class="admin-layout" hidden>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
       <a href="../index.html"><img src="../assets/img/logo-jurisaffaires-light.png" alt="JurisAffaires" width="210" height="35"></a>
@@ -37,6 +65,7 @@
       </div>
       <div class="topbar__actions">
         <span id="rebuildStatus" class="kpi"></span>
+        <a href="../rendez-vous.html" target="_blank" class="btn btn--ghost btn--sm">↗ Page RDV</a>
         <button id="rebuildBtn" class="btn btn--gold btn--sm">⟳ Reconstruire le site</button>
         <button id="saveBtn" class="btn btn--primary btn--sm" style="display:none">Enregistrer</button>
       </div>
@@ -45,6 +74,6 @@
   </div>
 </div>
 
-<script src="assets/admin.js"></script>
+<script src="assets/admin.js?v=4"></script>
 </body>
 </html>

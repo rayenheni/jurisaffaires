@@ -3,6 +3,7 @@
 node_modules/
 npm-debug.log
 data/messages.json
+data/reservations.json
 data/users.json
 data/media.json
 assets/img/uploads/*

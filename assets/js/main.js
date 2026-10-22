@@ -79,6 +79,8 @@
   onScroll();
   onScrollProgress();
 
+  var syncStickyBar = function () {};
+
   /* ------------------------------------------------------------------
      3. Mobile menu
      ------------------------------------------------------------------ */
@@ -99,6 +101,7 @@
       menu.classList.toggle('is-open', open);
       menu.setAttribute('aria-hidden', String(!open));
       document.body.classList.toggle('is-locked', open);
+      syncStickyBar();
       if (open) {
         // Le panneau passe de `visibility: hidden` à `visible` avec une
         // transition : on attend la fin du fondu avant de déplacer le focus,
@@ -219,7 +222,7 @@
 
   if (stickyBar) {
     var hero = document.getElementById('hero');
-    var stickyForm = document.getElementById('contactForm');
+    var stickyForm = document.getElementById('contactForm') || document.getElementById('bookingApp');
     var stickyFooter = document.querySelector('footer.footer');
 
     function overlapsViewport(el) {
@@ -243,19 +246,21 @@
     }
 
     function onSticky() {
-      if (window.innerWidth >= 1060) {
+      if (window.innerWidth >= 1024) {
         stickyBar.classList.remove('is-suppressed');
         applySticky(false);
         return;
       }
       var past = (window.pageYOffset || 0) > (hero ? hero.offsetHeight - 140 : 600);
-      // La barre ne doit recouvrir ni un champ du formulaire, ni la fin du
-      // pied de page. Elle s'efface tant que l'un des deux est à l'écran.
-      var blocked = overlapsViewport(stickyForm) || overlapsViewport(stickyFooter);
+      // La barre ne doit recouvrir ni le menu ouvert, ni un champ du
+      // formulaire, ni la fin du pied de page.
+      var menuOpen = Boolean(menu && menu.classList.contains('is-open'));
+      var blocked = menuOpen || overlapsViewport(stickyForm) || overlapsViewport(stickyFooter);
       stickyBar.classList.toggle('is-suppressed', blocked);
       applySticky(past && !blocked);
     }
 
+    syncStickyBar = onSticky;
     window.addEventListener('scroll', onSticky, { passive: true });
     window.addEventListener('resize', onSticky, { passive: true });
     onSticky();
