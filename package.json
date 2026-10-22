@@ -1,12 +1,12 @@
 {
   "name": "jurisaffaires-admin",
   "version": "1.0.0",
-  "description": "Espace admin JurisAffaires — gestion complète du site",
+  "description": "Espace admin JurisAffaires \u2014 gestion compl\u00e8te du site",
   "type": "commonjs",
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "build": "python3 tools/build_pages.py"
+    "build": "python3 tools/build_static.py"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

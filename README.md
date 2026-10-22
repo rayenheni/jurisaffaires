@@ -278,3 +278,18 @@ manière de travailler.
    poser pour le référencement et le partage social.
 5. **Les images** sont servies telles quelles ; une version `WebP` et un
    `srcset` seraient utiles sur mobile.
+## Déploiement statique sur Vercel
+
+La configuration `vercel.json` lance `npm run build` et publie le dossier
+`public/`. Cette commande génère les pages à la racine puis copie uniquement
+les fichiers HTML, `assets/` et l'interface `admin/` dans une sortie propre.
+Les sources serveur, `data/`, `.env` et les dépendances ne sont pas publiées.
+Le dossier `public/` est généré et ignoré par Git. Python 3 doit être disponible
+pendant le build. La génération locale des pages seules reste possible avec
+`python3 tools/build_pages.py`.
+
+**Limite :** ce déploiement est statique. Il ne lance pas `server/index.js` :
+les routes `/api/*` (authentification admin, CMS, messages et réservations)
+nécessitent le serveur Node et ne fonctionnent pas sur cet hébergement seul.
+Pour le site avec backend, utiliser un hébergement Node avec `npm start`
+et une configuration de stockage persistant adaptée.
