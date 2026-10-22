@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const helmet = require('helmet');
+const compression = require('compression');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
@@ -31,6 +32,11 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Compression à la volée : sans elle, style.min.css (121 Ko) et les pages
+// HTML partaient en clair sur 4G mobile. Les hôtes statiques (Vercel, CDN)
+// compressent déjà ; ce middleware couvre l'auto-hébergement Node.
+app.use(compression({ threshold: 1024 }));
+
 app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   res.on('finish', () => {
@@ -51,12 +57,23 @@ app.use('/admin', express.static(path.join(ROOT, 'admin'), {
 }));
 
 // Serve public site (static)
+// Politique de cache
+//  - polices, images et fichiers de style/script : noms (ou ?v=empreinte)
+//    uniques par version -> un an, immuable. C'est ce qui supprime les
+//    allers-retours de revalidation qui plombaient le LCP au 2e chargement.
+//  - pages HTML : revalidation systématique pour publier immédiatement.
+const IMMUTABLE = 'public, max-age=31536000, immutable';
 app.use(express.static(PUBLIC_DIR, {
   extensions: ['html'],
   index: 'index.html',
   setHeaders(res, filePath) {
-    if (/\.(html|css|js)$/i.test(filePath)) {
-      res.setHeader('Cache-Control', 'no-cache');
+    if (/\.(?:woff2|webp|avif|jpe?g|png|svg)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', IMMUTABLE);
+    } else if (/assets[\\/](?:css|js)[\\/].*\.(?:css|js)$/i.test(filePath)) {
+      // Toutes les références portent ?v=<empreinte> (voir tools/build_pages.py).
+      res.setHeader('Cache-Control', IMMUTABLE);
+    } else if (/\.html?$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     }
   }
 }));

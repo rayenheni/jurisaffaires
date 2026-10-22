@@ -77,8 +77,10 @@ jurisaffaires-demo/
 ├── politique-de-confidentialite.html
 │
 ├── assets/
-│   ├── css/style.css              ← toute la identité visuelle (≈ 2 790 lignes)
-│   ├── js/main.js                 ← interactions légères (≈ 235 lignes)
+│   ├── css/style.css              ← toute la identité visuelle (source, ≈ 3 000 lignes)
+│   ├── css/style.min.css          ← version minifiée servie par les pages
+│   ├── fonts/                     ← Inter + Newsreader auto-hébergées (woff2 sous-ensemblés)
+│   ├── js/main.js                 ← interactions légères
 │   ├── img/
 │   │   ├── hero-architecture.jpg  ← texture sombre des heroes
 │   │   ├── logo-jurisaffaires.png        ← logo officiel (en-tête)
@@ -88,6 +90,9 @@ jurisaffaires-demo/
 │
 ├── tools/
 │   ├── build_pages.py             ← générateur des pages intérieures
+│   ├── build_static.py            ← build complet (CSS minifié + pages + public/)
+│   ├── minify_css.py              ← style.css → style.min.css
+│   ├── build_images.py            ← variantes WebP responsives des images
 │   └── .home-section.html         ← corps de la page d'accueil
 │
 └── README.md
@@ -234,6 +239,12 @@ Toutes les pages sortent du même chrome (`head`, `header`, `subnav`, `footer`,
 `page_h`) : une seule source de vérité pour la navigation, le pied de page et les
 métadonnées.
 
+```bash
+npm run build     # CSS minifié + toutes les pages + dossier public/
+npm run css       # style.css → style.min.css (appelé par le build)
+npm run images    # régénère les variantes WebP (ImageMagick requis)
+```
+
 ---
 
 ## 7. Provenance des contenus
@@ -276,8 +287,9 @@ manière de travailler.
    devra avoir sa propre URL et son propre `sitemap.xml`.
 4. **Le header `Content-Security-Policy` / les métadonnées Open Graph** restent à
    poser pour le référencement et le partage social.
-5. **Les images** sont servies telles quelles ; une version `WebP` et un
-   `srcset` seraient utiles sur mobile.
+5. **Les images** ont désormais des variantes WebP déclinées en `srcset`
+   (voir la section « Performances » ci-dessous). Après avoir remplacé une image
+   source, relancer `npm run images` puis `npm run build`.
 ## Déploiement statique sur Vercel
 
 La configuration `vercel.json` lance `npm run build` et publie le dossier
@@ -293,3 +305,35 @@ les routes `/api/*` (authentification admin, CMS, messages et réservations)
 nécessitent le serveur Node et ne fonctionnent pas sur cet hébergement seul.
 Pour le site avec backend, utiliser un hébergement Node avec `npm start`
 et une configuration de stockage persistant adaptée.
+
+---
+
+## Performances (PageSpeed mobile)
+
+Le rapport PageSpeed mobile relevait 69/100 : FCP 3,9 s, LCP 5,3 s, Speed
+Index 5,3 s, avec 2 900 ms de ressources bloquant le rendu, 25 Ko de CSS
+inutilisé et 13 Ko de CSS à compresser. Les causes identifiées et les
+corrections apportées :
+
+| Cause mesurée | Correction |
+| --- | --- |
+| Feuille de style Google Fonts bloquante + 2 poignées de main TLS vers `fonts.googleapis.com` / `fonts.gstatic.com` | Polices **auto-hébergées** dans `assets/fonts/`, sous-ensemblées sur les caractères réellement utilisés (Inter variable 28 Ko, Newsreader 300/400/italique ~15 Ko chacune), `font-display: swap`, `<link rel="preload">` sur les deux polices du premier écran |
+| Photo de héros chargée via `background-image` CSS (découverte tardive, pleine résolution sur mobile, pas de variantes) | **`<img>` + `srcset` WebP** (`640 → 1408 px`), `sizes="100vw"`, `fetchpriority="high"` : le préchargeur la trouve dans le HTML et le mobile ne télécharge plus 179 Ko mais ~44 Ko |
+| Contenu du héros et des héros de page en `opacity: 0` jusqu'à l'exécution du JS, puis révélation en 0,9 s | Le premier écran est **peint immédiatement** ; l'animation devient une translation seule (`@keyframes above-fold-rise`). Les révélations au défilement restent actives sous le pli |
+| 25 Ko de CSS inutilisé / 13 Ko à compresser (feuille de 173 Ko) | `style.min.css` (121 Ko → **21 Ko gzip**) servi à la place de la source, et compression activée côté Node |
+| Images servies en pleine taille (portraits 500 px, 12 logos PNG) | Variantes **WebP responsives** (`tools/build_images.py`) + `srcset`/`sizes` partout ; textures décoratives à faible opacité servies en 960 px |
+| Tâche longue dans le thread principal au défilement | `main.js` ne lit plus le layout (`offsetHeight`, `getBoundingClientRect`) à chaque événement : la géométrie est mesurée une fois puis au redimensionnement |
+| Pas de cache des ressources statiques | En-têtes `Cache-Control: immutable, max-age=31536000` sur polices/images/CSS/JS versionnés, `must-revalidate` sur les pages ; même politique dans `vercel.json` |
+
+Résultat attendu sur un profil 4G mobile : disparition des ressources
+bloquantes tierces, LCP ramené au poids de la photo de héros (~44 Ko) et du
+CSS compressé (~21 Ko).
+
+Pour vérifier localement :
+
+```bash
+npm run build
+npm start            # http://localhost:3000
+curl -s -H 'Accept-Encoding: gzip' -o /dev/null -w '%{size_download}\n' \
+  http://localhost:3000/assets/css/style.min.css
+```

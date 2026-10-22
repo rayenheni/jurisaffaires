@@ -1,3 +1,10 @@
+/* Polices auto-hébergées (mêmes fichiers que le site public).
+   Supprime la requête bloquante vers fonts.googleapis.com. */
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;
+  src:url("../../assets/fonts/inter-latin-var.woff2") format("woff2")}
+@font-face{font-family:"Newsreader";font-style:normal;font-weight:400;font-display:swap;
+  src:url("../../assets/fonts/newsreader-400-latin.woff2") format("woff2")}
+
 /* JurisAffaires Admin — palette officielle */
 :root{
   --green:#4F6C62; --green-deep:#364C45; --gold:#AE9A63; --gold-soft:#C9B889;

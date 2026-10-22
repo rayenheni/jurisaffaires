@@ -1,15 +1,18 @@
 {
   "name": "jurisaffaires-admin",
   "version": "1.0.0",
-  "description": "Espace admin JurisAffaires \u2014 gestion compl\u00e8te du site",
+  "description": "Espace admin JurisAffaires — gestion complète du site",
   "type": "commonjs",
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "build": "python3 tools/build_static.py"
+    "build": "python3 tools/build_static.py",
+    "css": "python3 tools/minify_css.py",
+    "images": "python3 tools/build_images.py"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",

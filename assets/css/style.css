@@ -27,6 +27,55 @@
 
 
 /* =====================================================================
+   00 — POLICES AUTO-HÉBERGÉES
+   ---------------------------------------------------------------------
+   Inter et Newsreader étaient chargées depuis fonts.googleapis.com :
+   une feuille de style distante bloquante, deux poignées de main TLS
+   supplémentaires puis les woff2, soit ~1 s de First Contentful Paint
+   perdu sur mobile. Les deux familles sont désormais servies par le
+   domaine, sous-ensemblées sur les caractères réellement utilisés par
+   le site (latin + ponctuation française typographique).
+
+   Inter reste variable (100–900) : une seule requête couvre tous les
+   poids utilisés par la charte. Newsreader est figée sur les deux
+   graisses du site (300 et 400) : le fichier variable complet pesait
+   58 Ko, chaque instance sous-ensemblée ~16 Ko.
+   ===================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-latin-var.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/newsreader-300-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/newsreader-400-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 200 500;
+  font-display: swap;
+  src: url("../fonts/newsreader-italic-latin.woff2") format("woff2");
+}
+
+
+/* =====================================================================
    00 — TOKENS
    ===================================================================== */
 
@@ -753,10 +802,12 @@ p { margin: 0; }
 @media (min-width: 1060px) { .hero { padding-top: 110px; } }
 
 
+/* Photo de héros : désormais une vraie balise <img> (l'élément LCP), pour
+   qu'elle soit découverte par le préchargeur du navigateur avec son
+   srcset. Le bloc ci-dessous n'est qu'un repli si le markup est absent. */
 .hero__media {
   position: absolute;
   inset: 0;
-  background-image: url("../img/hero-architecture.jpg");
   background-size: cover;
   background-position: 62% 45%;
   opacity: .34;
@@ -1229,7 +1280,7 @@ p { margin: 0; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url("../img/hero-architecture.jpg");
+  background-image: url("../img/hero-architecture-960.webp");
   background-size: cover;
   background-position: 78% 50%;
   opacity: .13;
@@ -2098,6 +2149,39 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   .stagger-2 > *:nth-child(4) { --reveal-delay: 0ms; }
 }
 
+/* --- Contenu de l'écran d'accueil : peint dès le premier rendu -------
+   Les blocs du héros (sur-titre, titre, listes, boutons) et des héros de
+   page étaient masqués (opacity: 0) jusqu'à l'exécution de main.js, puis
+   révélés en 0,9 s. Le navigateur ne peignait donc aucun de ces textes
+   avant : c'est ce qui repoussait FCP et LCP d'environ une seconde sur
+   mobile. Ils restent animés, mais en translation seule — le texte est
+   peint immédiatement, et l'animation ne coûte rien au compositeur.
+   Les révélations au défilement restent actives partout ailleurs. */
+.js .hero [data-reveal],
+.js .page-hero [data-reveal] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.js .hero .wipe > * > span,
+.js .page-hero .wipe > * > span {
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero [data-reveal],
+  .js .page-hero [data-reveal] {
+    animation: above-fold-rise .68s var(--ease-out) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+@keyframes above-fold-rise {
+  from { transform: translateY(16px); }
+  to   { transform: none; }
+}
+
 /* Scroll cue in hero index is the only looping motion */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -2205,7 +2289,7 @@ a.contact-row__value:hover { color: var(--accent-soft); }
   position: absolute;
   inset: 0;
   z-index: -2;
-  background-image: url("../img/hero-architecture.jpg");
+  background-image: url("../img/hero-architecture-960.webp");
   background-size: cover;
   background-position: 74% 42%;
   opacity: .16;
@@ -3615,13 +3699,17 @@ body { background: var(--paper-2); }
   flex-direction: column;
 }
 
-/* Photo de fond — pleine section, visible */
+/* Photo de fond — pleine section, visible.
+   C'est une <img> (voir index.html) : le navigateur la découvre dans le
+   HTML, choisit la variante WebP adaptée via srcset, et peut la
+   précharger. Elle est l'élément LCP de la page d'accueil. */
 .hero__media {
   position: absolute;
   inset: 0;
-  background-image: url("../img/editorial-library.jpg");
-  background-position: center 28%;
-  background-size: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
   opacity: 1;
   filter: contrast(1.08) brightness(.72) saturate(.88);
   transform: scale(1.02);
@@ -3957,7 +4045,7 @@ body { background: var(--paper-2); }
   padding-bottom: clamp(48px, 5.4vw, 84px);
 }
 .page-hero::before {
-  background-image: url("../img/hero-architecture.jpg");
+  background-image: url("../img/hero-architecture-960.webp");
   background-position: 82% 30%;
   opacity: .085;
   filter: grayscale(1) contrast(.9);
