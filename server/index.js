@@ -23,19 +23,41 @@ app.use(helmet({
   crossOriginOpenerPolicy: false,
   crossOriginResourcePolicy: false,
 }));
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Admin-Token']
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.on('finish', () => {
+    console.log(`[api] ${req.method} ${req.originalUrl} -> ${res.statusCode}`);
+  });
+  next();
+});
+
 // Rate limit login
-const loginLimiter = rateLimit({ windowMs: 15*60*1000, max: 20, standardHeaders: true });
+const loginLimiter = rateLimit({ windowMs: 15*60*1000, max: 50, standardHeaders: true });
+
+// Serve admin static assets first with no-store so updates take effect immediately
+app.use('/admin', express.static(path.join(ROOT, 'admin'), {
+  index: 'index.html',
+  setHeaders(res) {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+}));
 
 // Serve public site (static)
 app.use(express.static(PUBLIC_DIR, {
   extensions: ['html'],
   index: 'index.html',
   setHeaders(res, filePath) {
-    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+    if (/\.(html|css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
   }
 }));
 
@@ -43,12 +65,16 @@ app.use(express.static(PUBLIC_DIR, {
 app.use('/api/auth', loginLimiter, require('./routes/auth'));
 app.use('/api/cms', require('./routes/cms'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/reservations', require('./routes/reservations'));
 app.use('/api/media', require('./routes/media'));
 app.use('/api/rebuild', require('./routes/rebuild'));
 app.use('/api/stats', require('./routes/stats'));
 
 // Health
-app.get('/api/health', (req,res)=> res.json({ ok:true, pages:43, time: new Date().toISOString() }));
+app.get('/api/health', (req,res)=>{
+  const htmlCount = fs.readdirSync(ROOT).filter(f=>f.endsWith('.html')).length;
+  res.json({ ok:true, pages: htmlCount, time: new Date().toISOString() });
+});
 
 // Serve admin SPA (protected client-side, but we serve files)
 app.use('/admin', express.static(path.join(ROOT, 'admin')));

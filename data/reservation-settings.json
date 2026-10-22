@@ -1,0 +1,114 @@
+{
+  "enabled": true,
+  "autoConfirm": false,
+  "slotDuration": 45,
+  "bufferMinutes": 15,
+  "minAdvanceHours": 1,
+  "maxAdvanceDays": 60,
+  "timezone": "Africa/Tunis",
+  "modes": [
+    {
+      "id": "cabinet",
+      "label": "Au cabinet (Tunis)",
+      "subtitle": "45, rue Ali Darghouth — 1001 Tunis",
+      "duration": 45,
+      "enabled": true
+    },
+    {
+      "id": "visio",
+      "label": "Visioconférence",
+      "subtitle": "Entretien vidéo sécurisé (lien transmis par e-mail)",
+      "duration": 45,
+      "enabled": true
+    },
+    {
+      "id": "telephone",
+      "label": "Entretien téléphonique",
+      "subtitle": "Appel direct par l’avocat à l’heure convenue",
+      "duration": 30,
+      "enabled": true
+    }
+  ],
+  "schedule": {
+    "0": {
+      "open": false,
+      "ranges": []
+    },
+    "1": {
+      "open": true,
+      "ranges": [
+        [
+          "09:00",
+          "12:30"
+        ],
+        [
+          "14:00",
+          "18:00"
+        ]
+      ]
+    },
+    "2": {
+      "open": true,
+      "ranges": [
+        [
+          "09:00",
+          "12:30"
+        ],
+        [
+          "14:00",
+          "18:00"
+        ]
+      ]
+    },
+    "3": {
+      "open": true,
+      "ranges": [
+        [
+          "09:00",
+          "12:30"
+        ],
+        [
+          "14:00",
+          "18:00"
+        ]
+      ]
+    },
+    "4": {
+      "open": true,
+      "ranges": [
+        [
+          "09:00",
+          "12:30"
+        ],
+        [
+          "14:00",
+          "18:00"
+        ]
+      ]
+    },
+    "5": {
+      "open": true,
+      "ranges": [
+        [
+          "09:00",
+          "12:30"
+        ],
+        [
+          "14:00",
+          "17:30"
+        ]
+      ]
+    },
+    "6": {
+      "open": false,
+      "ranges": [
+        [
+          "09:30",
+          "12:30"
+        ]
+      ]
+    }
+  },
+  "blockedDates": [],
+  "blockedSlots": []
+}
